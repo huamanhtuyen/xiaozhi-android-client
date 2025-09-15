@@ -109,9 +109,9 @@ class ConversationTile extends StatelessWidget {
 
   Widget _buildTypeTag(BuildContext context) {
     final bool isDify = conversation.type == ConversationType.dify;
-    String label = isDify ? '文本' : '语音';
+    String label = isDify ? 'Văn bản' : 'Giọng nói';
 
-    // 如果有配置ID且不为空，则显示配置名称
+    // Nếu có ID cấu hình và không rỗng, thì hiển thị tên cấu hình
     if (conversation.configId.isNotEmpty) {
       final configProvider = Provider.of<ConfigProvider>(
         context,
@@ -119,7 +119,7 @@ class ConversationTile extends StatelessWidget {
       );
 
       if (isDify) {
-        // 尝试查找匹配的Dify配置
+        // Thử tìm cấu hình Dify khớp
         final matchingConfig =
             configProvider.difyConfigs
                 .where((config) => config.id == conversation.configId)
@@ -128,7 +128,7 @@ class ConversationTile extends StatelessWidget {
           label = '${matchingConfig.name}';
         }
       } else {
-        // 尝试查找匹配的小智配置
+        // Thử tìm cấu hình Xiaozhi khớp
         final matchingConfig =
             configProvider.xiaozhiConfigs
                 .where((config) => config.id == conversation.configId)
@@ -180,11 +180,11 @@ class ConversationTile extends StatelessWidget {
     final difference = now.difference(dateTime);
 
     if (difference.inDays > 0 && difference.inDays <= 1) {
-      return '昨天';
+      return 'Hôm qua';
     } else if (difference.inDays > 1 && difference.inDays <= 7) {
-      return '周${_getWeekday(dateTime.weekday)}';
+      return 'Thứ ${_getWeekday(dateTime.weekday)}';
     } else {
-      // 当天显示时间
+      // Khi đó hiển thị thời gian
       final hour = dateTime.hour.toString().padLeft(2, '0');
       final minute = dateTime.minute.toString().padLeft(2, '0');
       return '$hour:$minute';
@@ -194,19 +194,19 @@ class ConversationTile extends StatelessWidget {
   String _getWeekday(int weekday) {
     switch (weekday) {
       case 1:
-        return '一';
+        return 'Hai';
       case 2:
-        return '二';
+        return 'Ba';
       case 3:
-        return '三';
+        return 'Tư';
       case 4:
-        return '四';
+        return 'Năm';
       case 5:
-        return '五';
+        return 'Sáu';
       case 6:
-        return '六';
+        return 'Bảy';
       case 7:
-        return '日';
+        return 'Chủ Nhật';
       default:
         return '';
     }

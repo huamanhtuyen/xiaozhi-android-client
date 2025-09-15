@@ -18,86 +18,86 @@ import 'dart:ui';
 import 'package:ai_assistant/utils/audio_util.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 
-// 是否启用调试工具
+// Có kích hoạt công cụ debug không
 const bool enableDebugTools = true;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 设置全局沉浸式导航栏
+  // Thiết lập thanh điều hướng toàn cục immersive
   await _setupSystemUI();
 
-  // 设置状态栏颜色变化监听器，确保状态栏样式始终如一
+  // Thiết lập listener thay đổi màu trạng thái, đảm bảo style trạng thái luôn nhất quán
   SystemChannels.lifecycle.setMessageHandler((msg) async {
     if (msg == AppLifecycleState.resumed.toString()) {
-      // 应用回到前台时重新应用系统UI设置
+      // Khi ứng dụng quay lại foreground, áp dụng lại thiết lập UI hệ thống
       await _setupSystemUI();
     }
     return null;
   });
 
-  // 设置高性能渲染
+  // Thiết lập render hiệu suất cao
   if (Platform.isAndroid || Platform.isIOS) {
-    // 启用SkSL预热，提高首次渲染性能
+    // Kích hoạt SkSL preheat, cải thiện hiệu suất render lần đầu
     await Future.delayed(const Duration(milliseconds: 50));
     PaintingBinding.instance.imageCache.maximumSize = 1000;
-    // 增加图像缓存容量
+    // Tăng dung lượng cache hình ảnh
     PaintingBinding.instance.imageCache.maximumSizeBytes =
         100 * 1024 * 1024; // 100 MB
   }
 
-  // 请求录音和存储权限
+  // Yêu cầu quyền ghi âm và lưu trữ
   await [
     Permission.microphone,
     Permission.storage,
     if (Platform.isAndroid) Permission.bluetoothConnect,
   ].request();
 
-  // 添加中文本地化支持
+  // Thêm hỗ trợ localization tiếng Trung
   timeago.setLocaleMessages('zh', timeago.ZhMessages());
   timeago.setDefaultLocale('zh');
 
-  // 在Android上设置高刷新率
+  // Thiết lập tần số quét cao trên Android
   if (Platform.isAndroid) {
     try {
-      // 获取所有支持的显示模式
+      // Lấy tất cả mode hiển thị hỗ trợ
       final modes = await FlutterDisplayMode.supported;
-      print('支持的显示模式: ${modes.length}');
-      modes.forEach((mode) => print('模式: $mode'));
+      print('Các mode hiển thị hỗ trợ: ${modes.length}');
+      modes.forEach((mode) => print('Mode: $mode'));
 
-      // 获取当前活跃的模式
+      // Lấy mode hiện tại đang active
       final current = await FlutterDisplayMode.active;
-      print('当前模式: $current');
+      print('Mode hiện tại: $current');
 
-      // 设置为高刷新率模式
+      // Thiết lập mode tần số quét cao
       await FlutterDisplayMode.setHighRefreshRate();
 
-      // 确认设置成功
+      // Xác nhận thiết lập thành công
       final afterSet = await FlutterDisplayMode.active;
-      print('设置后模式: $afterSet');
+      print('Mode sau thiết lập: $afterSet');
     } catch (e) {
-      print('设置高刷新率失败: $e');
+      print('Thiết lập tần số quét cao thất bại: $e');
     }
   }
 
-  // 初始化Opus库
+  // Khởi tạo thư viện Opus
   try {
     initOpus(await opus_flutter.load());
-    print('Opus初始化成功: ${getOpusVersion()}');
+    print('Khởi tạo Opus thành công: ${getOpusVersion()}');
   } catch (e) {
-    print('Opus初始化失败: $e');
+    print('Khởi tạo Opus thất bại: $e');
   }
 
-  // 初始化录音和播放器
+  // Khởi tạo recorder và player
   try {
     await AudioUtil.initRecorder();
     await AudioUtil.initPlayer();
-    print('音频系统初始化成功');
+    print('Khởi tạo hệ thống âm thanh thành công');
   } catch (e) {
-    print('音频系统初始化失败: $e');
+    print('Khởi tạo hệ thống âm thanh thất bại: $e');
   }
 
-  // 初始化配置管理
+  // Khởi tạo quản lý config
   final configProvider = ConfigProvider();
 
   runApp(
@@ -112,9 +112,9 @@ void main() async {
   );
 }
 
-// 设置系统UI沉浸式效果
+// Thiết lập hiệu ứng immersive UI hệ thống
 Future<void> _setupSystemUI() async {
-  // 设置状态栏和导航栏透明
+  // Thiết lập trạng thái và navigation bar trong suốt
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -127,10 +127,10 @@ Future<void> _setupSystemUI() async {
   );
 
   if (Platform.isAndroid) {
-    // 启用边缘到边缘显示模式，实现真正的全面屏效果
+    // Kích hoạt mode hiển thị edge-to-edge, thực hiện full screen thực sự
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   } else if (Platform.isIOS) {
-    // iOS上设置为全屏显示但保留状态栏
+    // Trên iOS thiết lập full screen nhưng giữ trạng thái bar
     await SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
       overlays: [SystemUiOverlay.top],
@@ -153,16 +153,16 @@ class MyApp extends StatelessWidget {
       themeMode: themeProvider.themeMode,
       home: const HomeScreen(),
       routes: {
-        // 添加测试界面路由
+        // Thêm route cho màn hình test
         '/test': (context) => const TestScreen(),
       },
-      // 添加平滑滚动设置
+      // Thêm thiết lập cuộn mượt mà
       scrollBehavior: const MaterialScrollBehavior().copyWith(
-        // 启用物理滚动
+        // Kích hoạt cuộn vật lý
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
         ),
-        // 确保所有平台都有滚动条和弹性效果
+        // Đảm bảo tất cả nền tảng có thanh cuộn và hiệu ứng đàn hồi
         dragDevices: {
           PointerDeviceKind.touch,
           PointerDeviceKind.mouse,

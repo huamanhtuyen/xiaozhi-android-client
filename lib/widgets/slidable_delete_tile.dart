@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// 全局状态管理，确保同时只有一个删除按钮打开
+// Quản lý trạng thái toàn cục, đảm bảo chỉ có một nút xóa mở cùng lúc
 class SlidableController {
   static SlidableController? _instance;
 
@@ -12,19 +12,19 @@ class SlidableController {
 
   SlidableController._();
 
-  // 当前打开的项目
+  // Mục hiện tại đang mở
   _SlidableDeleteTileState? _currentOpenTile;
 
-  // 设置当前打开的项目
+  // Thiết lập mục hiện tại đang mở
   void setCurrentOpenTile(_SlidableDeleteTileState tile) {
-    // 如果已经有其他打开的项目，先关闭它
+    // Nếu đã có mục khác đang mở, đóng nó trước
     if (_currentOpenTile != null && _currentOpenTile != tile) {
       _currentOpenTile!._resetPosition();
     }
     _currentOpenTile = tile;
   }
 
-  // 关闭当前打开的项目
+  // Đóng mục hiện tại đang mở
   void closeCurrentTile() {
     _currentOpenTile?._resetPosition();
     _currentOpenTile = null;
@@ -52,25 +52,25 @@ class SlidableDeleteTile extends StatefulWidget {
 }
 
 class _SlidableDeleteTileState extends State<SlidableDeleteTile> {
-  // 滑动位置
+  // Vị trí trượt
   double _dragExtent = 0.0;
-  // 是否已经打开删除按钮
+  // Có mở nút xóa chưa
   bool _isOpen = false;
-  // 删除按钮宽度
+  // Chiều rộng nút xóa
   final double _deleteButtonWidth = 80.0;
-  // 拖动阈值，超过这个比例会自动打开
+  // Ngưỡng kéo, vượt quá tỷ lệ này sẽ tự động mở
   final double _openThreshold = 0.3;
 
   @override
   void dispose() {
-    // 如果当前打开的是这个项目，清除引用
+    // Nếu mục hiện tại đang mở là cái này, xóa tham chiếu
     if (SlidableController.instance._currentOpenTile == this) {
       SlidableController.instance._currentOpenTile = null;
     }
     super.dispose();
   }
 
-  // 重置滑动状态
+  // Đặt lại trạng thái trượt
   void _resetPosition() {
     if (!mounted) return;
     setState(() {
@@ -81,7 +81,7 @@ class _SlidableDeleteTileState extends State<SlidableDeleteTile> {
 
   @override
   Widget build(BuildContext context) {
-    // 构建删除按钮 - 拟物化垃圾桶图标
+    // Xây dựng nút xóa - Icon thùng rác thực tế
     final deleteButton = Container(
       width: _deleteButtonWidth,
       height: double.infinity,
@@ -92,13 +92,13 @@ class _SlidableDeleteTileState extends State<SlidableDeleteTile> {
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: () {
-            // 振动反馈
+            // Phản hồi rung
             HapticFeedback.mediumImpact();
-            // 执行删除回调
+            // Thực hiện callback xóa
             widget.onDelete();
-            // 重置状态
+            // Đặt lại trạng thái
             _resetPosition();
-            // 清除当前打开的引用
+            // Xóa tham chiếu mục hiện tại đang mở
             SlidableController.instance._currentOpenTile = null;
           },
           child: Container(
@@ -136,7 +136,7 @@ class _SlidableDeleteTileState extends State<SlidableDeleteTile> {
 
     return Stack(
       children: [
-        // 滑动背景（删除按钮区域）
+        // Nền trượt (vùng nút xóa)
         Positioned.fill(
           child: Container(
             alignment: Alignment.centerRight,
@@ -149,45 +149,45 @@ class _SlidableDeleteTileState extends State<SlidableDeleteTile> {
           ),
         ),
 
-        // 可滑动的内容 - 使用GestureDetector实现水平滑动
+        // Nội dung có thể trượt - Sử dụng GestureDetector để trượt ngang
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onHorizontalDragStart: (_) {
-            // 开始拖动，关闭其他打开的项目
+            // Bắt đầu kéo, đóng các mục khác đang mở
             SlidableController.instance.closeCurrentTile();
           },
           onHorizontalDragUpdate: (details) {
             setState(() {
-              // 更新滑动位置
+              // Cập nhật vị trí trượt
               _dragExtent += details.delta.dx;
-              // 限制范围
+              // Giới hạn phạm vi
               _dragExtent = _dragExtent.clamp(-_deleteButtonWidth, 0.0);
             });
           },
           onHorizontalDragEnd: (details) {
-            // 根据滑动速度和距离决定是否打开删除按钮
+            // Dựa trên tốc độ và khoảng cách trượt để quyết định có mở nút xóa không
             final velocity = details.velocity.pixelsPerSecond.dx;
 
-            // 向右滑动速度快，或者已经接近原位，则关闭
+            // Trượt sang phải nhanh, hoặc gần vị trí gốc, thì đóng
             if (velocity > 300 ||
                 _dragExtent > -_deleteButtonWidth * _openThreshold) {
               _resetPosition();
               SlidableController.instance._currentOpenTile = null;
             }
-            // 向左滑动速度快，或者已经接近全开，则打开
+            // Trượt sang trái nhanh, hoặc gần mở hoàn toàn, thì mở
             else if (velocity < -300 ||
                 _dragExtent.abs() >= _deleteButtonWidth * _openThreshold) {
-              // 打开删除按钮
+              // Mở nút xóa
               setState(() {
                 _isOpen = true;
                 _dragExtent = -_deleteButtonWidth;
               });
-              // 记录当前打开的项目
+              // Ghi lại mục hiện tại đang mở
               SlidableController.instance.setCurrentOpenTile(this);
-              // 振动反馈
+              // Phản hồi rung
               HapticFeedback.lightImpact();
             }
-            // 其他情况，保持原样
+            // Các trường hợp khác, giữ nguyên
             else if (_isOpen) {
               setState(() {
                 _dragExtent = -_deleteButtonWidth;
@@ -199,7 +199,7 @@ class _SlidableDeleteTileState extends State<SlidableDeleteTile> {
           onTap:
               _isOpen
                   ? () {
-                    // 如果删除按钮是打开的，点击内容区域关闭它
+                    // Nếu nút xóa đang mở, click vào vùng nội dung để đóng nó
                     _resetPosition();
                     SlidableController.instance._currentOpenTile = null;
                   }
@@ -213,7 +213,7 @@ class _SlidableDeleteTileState extends State<SlidableDeleteTile> {
           ),
         ),
 
-        // 添加一个额外的点击处理区域，确保删除按钮可点击
+        // Thêm một vùng xử lý click bổ sung, đảm bảo nút xóa có thể click
         if (_isOpen)
           Positioned(
             top: 0,
@@ -223,13 +223,13 @@ class _SlidableDeleteTileState extends State<SlidableDeleteTile> {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
-                // 振动反馈
+                // Phản hồi rung
                 HapticFeedback.mediumImpact();
-                // 执行删除回调
+                // Thực hiện callback xóa
                 widget.onDelete();
-                // 重置状态
+                // Đặt lại trạng thái
                 _resetPosition();
-                // 清除当前打开的引用
+                // Xóa tham chiếu mục hiện tại đang mở
                 SlidableController.instance._currentOpenTile = null;
               },
               child: Container(color: Colors.transparent),

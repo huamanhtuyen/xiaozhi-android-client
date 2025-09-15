@@ -24,12 +24,12 @@ class MessageBubble extends StatelessWidget {
     final isUser = message.role == MessageRole.user;
     final isSystem = message.role == MessageRole.system;
 
-    // 系统消息使用不同的展示方式
+    // Tin nhắn hệ thống sử dụng cách hiển thị khác
     if (isSystem) {
       return _buildSystemMessage(context);
     }
 
-    // 使用更高效的布局
+    // Sử dụng bố cục hiệu quả hơn
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -60,7 +60,7 @@ class MessageBubble extends StatelessWidget {
                             ? Border.all(color: Colors.grey.shade200)
                             : null,
                   ),
-                  // 检查是否为图片消息
+                  // Kiểm tra xem có phải là tin nhắn hình ảnh không
                   child:
                       isThinking
                           ? _buildThinkingIndicator(context)
@@ -71,7 +71,7 @@ class MessageBubble extends StatelessWidget {
                             style: TextStyle(
                               color: isUser ? Colors.white : Colors.black87,
                               fontSize: 15,
-                              // 添加高性能的文本渲染选项
+                              // Thêm tùy chọn render văn bản hiệu suất cao
                               height: 1.3,
                               leadingDistribution: TextLeadingDistribution.even,
                             ),
@@ -133,7 +133,7 @@ class MessageBubble extends StatelessWidget {
     return DateFormat('HH:mm').format(dateTime);
   }
 
-  // 构建系统消息
+  // Xây dựng tin nhắn hệ thống
   Widget _buildSystemMessage(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -153,15 +153,15 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  // 构建图片内容
+  // Xây dựng nội dung hình ảnh
   Widget _buildImageContent(BuildContext context) {
     final isUser = message.role == MessageRole.user;
 
-    // 检查是否有本地图片路径
+    // Kiểm tra xem có đường dẫn hình ảnh cục bộ không
     if (message.imageLocalPath != null && message.imageLocalPath!.isNotEmpty) {
       final imageFile = File(message.imageLocalPath!);
       if (!imageFile.existsSync()) {
-        return _buildImagePlaceholder(isUser, "图片已被删除");
+        return _buildImagePlaceholder(isUser, "Hình ảnh đã bị xóa");
       }
 
       return Column(
@@ -175,8 +175,8 @@ class MessageBubble extends StatelessWidget {
               width: 200,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
-                print('图片加载失败: $error');
-                return _buildImagePlaceholder(isUser, "图片加载失败");
+                print('Lỗi tải hình ảnh: $error');
+                return _buildImagePlaceholder(isUser, "Lỗi tải hình ảnh");
               },
             ),
           ),
@@ -255,7 +255,7 @@ class _ThinkingDotState extends State<_ThinkingDot>
       duration: const Duration(milliseconds: 600),
     )..repeat();
 
-    // 为每个点添加延迟，使动画不同步
+    // Thêm độ trễ cho mỗi điểm để animation không đồng bộ
     Future.delayed(Duration(milliseconds: 150 * widget.index), () {
       if (mounted) {
         _controller.repeat();
