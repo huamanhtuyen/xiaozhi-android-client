@@ -32,9 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // 点击页面任何地方时，让搜索框失去焦点
+        // Khi nhấp vào bất kỳ vị trí nào trên trang, làm cho ô tìm kiếm mất focus
         _searchFocusNode.unfocus();
-        // 同时关闭所有打开的删除按钮
+        // Đồng thời đóng tất cả các nút xóa đang mở
         SlidableController.instance.closeCurrentTile();
       },
       child: Scaffold(
@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ? null
                 : AppBar(
                   title: const Text(
-                    '消息',
+                    'Tin nhắn',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 28,
@@ -225,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      label: '消息',
+                      label: 'Tin nhắn',
                     ),
                     BottomNavigationBarItem(
                       icon: Material(
@@ -257,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      label: '发现',
+                      label: 'Khám phá',
                     ),
                   ],
                 ),
@@ -295,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: TextField(
             focusNode: _searchFocusNode,
             decoration: InputDecoration(
-              hintText: '搜索对话',
+              hintText: 'Tìm kiếm cuộc trò chuyện',
               hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 16),
               prefixIcon: Container(
                 padding: const EdgeInsets.all(12),
@@ -350,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   bottom: 8,
                 ),
                 child: Text(
-                  '置顶对话',
+                  'Cuộc trò chuyện được ghim',
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     color: Colors.grey,
@@ -379,7 +379,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   bottom: 8,
                 ),
                 child: const Text(
-                  '全部对话',
+                  'Tất cả cuộc trò chuyện',
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     color: Colors.grey,
@@ -428,7 +428,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        '没有对话',
+                        'Không có cuộc trò chuyện',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
@@ -470,7 +470,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              '点击 + 创建新对话',
+                              'Nhấp vào + để tạo cuộc trò chuyện mới',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey.shade500,
@@ -493,17 +493,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return SlidableDeleteTile(
       key: Key(conversation.id),
       onDelete: () {
-        // 删除对话
+        // Xóa cuộc trò chuyện
         Provider.of<ConversationProvider>(
           context,
           listen: false,
         ).deleteConversation(conversation.id);
 
-        // 显示撤销消息
+        // Hiển thị thông báo hoàn tác
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${conversation.title} 已删除'),
+            content: Text('${conversation.title} đã bị xóa'),
             backgroundColor: Colors.grey.shade800,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
@@ -512,10 +512,10 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(10),
             ),
             action: SnackBarAction(
-              label: '撤销',
+              label: 'Hoàn tác',
               textColor: Colors.white,
               onPressed: () {
-                // 恢复被删除的对话
+                // Khôi phục cuộc trò chuyện đã bị xóa
                 Provider.of<ConversationProvider>(
                   context,
                   listen: false,
@@ -526,7 +526,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
       onTap: () {
-        // 直接导航到聊天页面
+        // Điều hướng trực tiếp đến màn hình trò chuyện
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -535,13 +535,13 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
       onLongPress: () {
-        // 显示置顶等选项
+        // Hiển thị các tùy chọn như ghim trên cùng
         _showConversationOptions(conversation);
       },
       child: ConversationTile(
         conversation: conversation,
-        onTap: null, // 不再需要处理点击
-        onLongPress: null, // 不再需要处理长按
+        onTap: null, // Không cần xử lý click nữa
+        onLongPress: null, // Không cần xử lý nhấn dài nữa
       ),
     );
   }
@@ -626,7 +626,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       title: Text(
-                        conversation.isPinned ? '取消置顶' : '置顶对话',
+                        conversation.isPinned
+                            ? 'Bỏ ghim'
+                            : 'Ghim cuộc trò chuyện',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -693,7 +695,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       title: const Text(
-                        '删除对话',
+                        'Xóa cuộc trò chuyện',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -711,7 +713,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ).deleteConversation(conversation.id);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('${conversation.title} 已删除'),
+                            content: Text('${conversation.title} đã bị xóa'),
                             backgroundColor: Colors.grey.shade800,
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
