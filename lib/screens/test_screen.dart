@@ -23,7 +23,7 @@ class TestScreenState extends State<TestScreen> {
   void _addLog(String log) {
     setState(() {
       _logs.add('${DateTime.now().toString().substring(11, 19)}: $log');
-      // 限制日志行数
+      // Giới hạn số dòng log
       if (_logs.length > 100) {
         _logs.removeRange(0, _logs.length - 100);
       }
@@ -45,7 +45,7 @@ class TestScreenState extends State<TestScreen> {
     final config = Provider.of<ConfigProvider>(context, listen: false);
 
     if (config.difyConfig == null) {
-      _addLog('错误: Dify API配置未设置!');
+      _addLog('Lỗi: Cấu hình Dify API chưa được thiết lập!');
       return;
     }
 
@@ -54,62 +54,62 @@ class TestScreenState extends State<TestScreen> {
       _logs.clear();
     });
 
-    _addLog('开始测试会话一致性...');
+    _addLog('Bắt đầu kiểm tra tính nhất quán phiên...');
 
     try {
-      // 创建一个测试会话ID
+      // Tạo một ID phiên kiểm tra
       final sessionId = const Uuid().v4();
-      _addLog('使用会话ID: $sessionId');
+      _addLog('Sử dụng ID phiên: $sessionId');
 
       final difyService = await DifyService.create(
         apiKey: config.difyConfig!.apiKey,
         apiUrl: config.difyConfig!.apiUrl,
       );
 
-      // 发送第一条消息
-      _addLog('发送第一条消息');
+      // Gửi tin nhắn đầu tiên
+      _addLog('Gửi tin nhắn đầu tiên');
       final response1 = await difyService.sendMessage(
-        '这是测试消息1',
+        'Đây là tin nhắn kiểm tra 1',
         sessionId: sessionId,
       );
       _addLog(
-        '收到回复: ${response1.substring(0, math.min(20, response1.length))}...',
+        'Nhận phản hồi: ${response1.substring(0, math.min(20, response1.length))}...',
       );
       await _printCurrentSessions();
 
-      // 等待一秒
+      // Chờ một giây
       await Future.delayed(const Duration(seconds: 1));
 
-      // 发送第二条消息
-      _addLog('发送第二条消息');
+      // Gửi tin nhắn thứ hai
+      _addLog('Gửi tin nhắn thứ hai');
       final response2 = await difyService.sendMessage(
-        '这是测试消息2',
+        'Đây là tin nhắn kiểm tra 2',
         sessionId: sessionId,
       );
       _addLog(
-        '收到回复: ${response2.substring(0, math.min(20, response2.length))}...',
+        'Nhận phản hồi: ${response2.substring(0, math.min(20, response2.length))}...',
       );
       await _printCurrentSessions();
 
-      // 等待一秒
+      // Chờ một giây
       await Future.delayed(const Duration(seconds: 1));
 
-      // 发送第三条消息
-      _addLog('发送第三条消息');
+      // Gửi tin nhắn thứ ba
+      _addLog('Gửi tin nhắn thứ ba');
       final response3 = await difyService.sendMessage(
-        '这是测试消息3',
+        'Đây là tin nhắn kiểm tra 3',
         sessionId: sessionId,
       );
       _addLog(
-        '收到回复: ${response3.substring(0, math.min(20, response3.length))}...',
+        'Nhận phản hồi: ${response3.substring(0, math.min(20, response3.length))}...',
       );
 
-      // 打印结果
+      // In kết quả
       await _printCurrentSessions();
 
-      _addLog('测试完成');
+      _addLog('Kiểm tra hoàn thành');
     } catch (e) {
-      _addLog('测试失败: $e');
+      _addLog('Kiểm tra thất bại: $e');
     } finally {
       setState(() {
         _isTesting = false;
@@ -130,54 +130,54 @@ class TestScreenState extends State<TestScreen> {
       _logs.clear();
     });
 
-    _addLog('开始测试会话重置...');
+    _addLog('Bắt đầu kiểm tra đặt lại phiên...');
 
     try {
-      // 创建一个测试会话ID
+      // Tạo một ID phiên kiểm tra
       final sessionId = const Uuid().v4();
-      _addLog('使用会话ID: $sessionId');
+      _addLog('Sử dụng ID phiên: $sessionId');
 
       final difyService = await DifyService.create(
         apiKey: config.difyConfig!.apiKey,
         apiUrl: config.difyConfig!.apiUrl,
       );
 
-      // 先发送一条消息
-      _addLog('发送重置前消息');
+      // Gửi tin nhắn trước khi đặt lại
+      _addLog('Gửi tin nhắn trước khi đặt lại');
       final response1 = await difyService.sendMessage(
-        '这是重置前的消息',
+        'Đây là tin nhắn trước khi đặt lại',
         sessionId: sessionId,
       );
       _addLog(
-        '收到回复: ${response1.substring(0, math.min(20, response1.length))}...',
+        'Nhận phản hồi: ${response1.substring(0, math.min(20, response1.length))}...',
       );
 
-      // 打印当前会话ID
+      // In ID phiên hiện tại
       await _printCurrentSessions();
 
-      // 重置会话
-      _addLog('重置会话');
+      // Đặt lại phiên
+      _addLog('Đặt lại phiên');
       await difyService.clearConversation(sessionId);
 
-      // 打印重置后的会话ID
+      // In ID phiên sau khi đặt lại
       await _printCurrentSessions();
 
-      // 发送重置后的消息
-      _addLog('发送重置后消息');
+      // Gửi tin nhắn sau khi đặt lại
+      _addLog('Gửi tin nhắn sau khi đặt lại');
       final response2 = await difyService.sendMessage(
-        '这是重置后的消息',
+        'Đây là tin nhắn sau khi đặt lại',
         sessionId: sessionId,
       );
       _addLog(
-        '收到回复: ${response2.substring(0, math.min(20, response2.length))}...',
+        'Nhận phản hồi: ${response2.substring(0, math.min(20, response2.length))}...',
       );
 
-      // 打印最终会话ID
+      // In ID phiên cuối cùng
       await _printCurrentSessions();
 
-      _addLog('测试完成');
+      _addLog('Kiểm tra hoàn thành');
     } catch (e) {
-      _addLog('测试失败: $e');
+      _addLog('Kiểm tra thất bại: $e');
     } finally {
       setState(() {
         _isTesting = false;
@@ -191,13 +191,13 @@ class TestScreenState extends State<TestScreen> {
       _logs.clear();
     });
 
-    _addLog('获取存储的会话ID...');
+    _addLog('Lấy ID phiên đã lưu...');
 
     try {
       await _printCurrentSessions();
-      _addLog('完成');
+      _addLog('Hoàn thành');
     } catch (e) {
-      _addLog('失败: $e');
+      _addLog('Thất bại: $e');
     } finally {
       setState(() {
         _isTesting = false;
@@ -214,9 +214,9 @@ class TestScreenState extends State<TestScreen> {
     }
 
     final Map<String, dynamic> loadedMap = jsonDecode(mapJson);
-    _addLog('存储的会话ID:');
+    _addLog('ID phiên đã lưu:');
     loadedMap.forEach((sessionId, conversationId) {
-      _addLog('- 会话: $sessionId => 对话ID: $conversationId');
+      _addLog('- Phiên: $sessionId => ID cuộc trò chuyện: $conversationId');
     });
   }
 
@@ -224,13 +224,13 @@ class TestScreenState extends State<TestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dify会话ID测试'),
+        title: const Text('Kiểm tra ID phiên Dify'),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed:
                 _logs.isEmpty ? null : () => setState(() => _logs.clear()),
-            tooltip: '清除日志',
+            tooltip: 'Xóa log',
           ),
         ],
       ),
@@ -243,21 +243,21 @@ class TestScreenState extends State<TestScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isTesting ? null : _testConsistentSession,
-                    child: const Text('测试会话一致性'),
+                    child: const Text('Kiểm tra tính nhất quán phiên'),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isTesting ? null : _testResetSession,
-                    child: const Text('测试会话重置'),
+                    child: const Text('Kiểm tra đặt lại phiên'),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isTesting ? null : _printStoredSessions,
-                    child: const Text('查看存储的会话'),
+                    child: const Text('Xem phiên đã lưu'),
                   ),
                 ),
               ],
@@ -272,7 +272,9 @@ class TestScreenState extends State<TestScreen> {
 
   Widget _buildLogView() {
     if (_logs.isEmpty) {
-      return const Center(child: Text('没有日志，运行测试以查看结果。'));
+      return const Center(
+        child: Text('Không có log, chạy kiểm tra để xem kết quả.'),
+      );
     }
 
     return Stack(
@@ -302,11 +304,11 @@ class TestScreenState extends State<TestScreen> {
   }
 
   Color _getLogColor(String log) {
-    if (log.contains('错误') || log.contains('失败')) {
+    if (log.contains('Lỗi') || log.contains('Thất bại')) {
       return Colors.red;
-    } else if (log.contains('完成') || log.contains('成功')) {
+    } else if (log.contains('Hoàn thành') || log.contains('Thành công')) {
       return Colors.green;
-    } else if (log.contains('会话') || log.contains('对话ID')) {
+    } else if (log.contains('Phiên') || log.contains('ID cuộc trò chuyện')) {
       return Colors.blue;
     } else {
       return Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;

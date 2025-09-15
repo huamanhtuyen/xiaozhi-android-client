@@ -28,7 +28,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
   late XiaozhiService _xiaozhiService;
   bool _isConnected = false;
   bool _isSpeaking = false;
-  String _statusText = '正在连接...';
+  String _statusText = 'Đang kết nối...';
   Timer? _callTimer;
   Duration _callDuration = Duration.zero;
   bool _serverReady = false;
@@ -41,7 +41,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
   void initState() {
     super.initState();
 
-    // 设置状态栏为透明并使图标为白色
+    // Đặt thanh trạng thái trong suốt và biểu tượng màu trắng
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -53,7 +53,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
       ),
     );
 
-    // 在帧绘制后再次设置系统UI样式，避免被覆盖
+    // Sau khi vẽ khung, đặt lại kiểu UI hệ thống để tránh bị ghi đè
     WidgetsBinding.instance.addPostFrameCallback((_) {
       SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(
@@ -91,18 +91,18 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
   void _handleServerMessage(dynamic message) {
     // 处理服务器发来的消息
     if (message is Map<String, dynamic> && message['type'] == 'hello') {
-      print('收到服务器hello消息: $message');
+      print('Nhận tin nhắn hello từ server: $message');
       setState(() {
         _serverReady = true;
       });
 
-      // 服务器准备好后延迟短暂时间再自动开始录音
-      // 这样可以确保会话ID已经被正确设置
+      // Sau khi server sẵn sàng, trì hoãn ngắn để tự động bắt đầu ghi âm
+      // Điều này đảm bảo ID phiên đã được đặt đúng
       if (_isConnected && !_isSpeaking) {
-        // 延迟1秒，确保服务端和客户端都已准备就绪
+        // Trì hoãn 1 giây, đảm bảo server và client đã sẵn sàng
         Future.delayed(const Duration(milliseconds: 1000), () {
           if (mounted && _isConnected && !_isSpeaking) {
-            print('准备开始录音...');
+            print('Chuẩn bị bắt đầu ghi âm...');
             _startSpeaking();
           }
         });
@@ -112,13 +112,13 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
 
   @override
   void dispose() {
-    // 切换回普通聊天模式
+    // Chuyển về chế độ chat thông thường
     _xiaozhiService.switchToChatMode();
     _callTimer?.cancel();
     _audioVisualizerTimer?.cancel();
     _animationController.dispose();
 
-    // 确保停止所有音频播放
+    // Đảm bảo dừng tất cả phát âm thanh
     _xiaozhiService.stopPlayback();
 
     super.dispose();
@@ -126,22 +126,22 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
 
   void _connectToVoiceService() async {
     setState(() {
-      _statusText = '正在准备...';
+      _statusText = 'Đang chuẩn bị...';
     });
 
     try {
-      // 切换到语音通话模式
+      // Chuyển sang chế độ gọi thoại
       await _xiaozhiService.switchToVoiceCallMode();
 
       setState(() {
-        _statusText = '已连接';
+        _statusText = 'Đã kết nối';
         _isConnected = true;
       });
 
-      // 显示连接成功的提示
+      // Hiển thị thông báo kết nối thành công
       if (mounted) {
         _showCustomSnackbar(
-          message: '已进入语音通话模式',
+          message: 'Đã vào chế độ gọi thoại',
           icon: Icons.check_circle,
           iconColor: Colors.greenAccent,
         );
@@ -149,14 +149,14 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
 
       _startCallTimer();
 
-      // 添加会话消息
+      // Thêm tin nhắn phiên
       Provider.of<ConversationProvider>(context, listen: false).addMessage(
         conversationId: widget.conversation.id,
         role: MessageRole.assistant,
-        content: '语音通话已开始',
+        content: 'Gọi thoại đã bắt đầu',
       );
 
-      // 直接开始录音
+      // Bắt đầu ghi âm trực tiếp
       _startSpeaking();
     } catch (e) {
       setState(() {
@@ -167,7 +167,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
 
       if (mounted) {
         _showCustomSnackbar(
-          message: '进入语音通话模式失败: $e',
+          message: 'Vào chế độ gọi thoại thất bại: $e',
           icon: Icons.error_outline,
           iconColor: Colors.redAccent,
         );
@@ -220,22 +220,22 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
             .then((_) {
               if (mounted) {
                 _showCustomSnackbar(
-                  message: '正在录音...',
+                  message: 'Đang ghi âm...',
                   icon: Icons.mic,
                   iconColor: Colors.greenAccent,
                 );
               }
             })
             .catchError((e) {
-              print('开始录音失败: $e');
-              // 如果失败，恢复状态
+              print('Bắt đầu ghi âm thất bại: $e');
+              // Nếu thất bại, khôi phục trạng thái
               if (mounted) {
                 setState(() {
                   _isSpeaking = false;
                 });
 
                 _showCustomSnackbar(
-                  message: '开始录音失败: $e',
+                  message: 'Bắt đầu ghi âm thất bại: $e',
                   icon: Icons.error,
                   iconColor: Colors.redAccent,
                 );
@@ -250,7 +250,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
 
         if (mounted) {
           _showCustomSnackbar(
-            message: '开始录音失败: $e',
+            message: 'Bắt đầu ghi âm thất bại: $e',
             icon: Icons.error,
             iconColor: Colors.redAccent,
           );
@@ -449,9 +449,9 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
                 ),
                 const SizedBox(height: 12),
 
-                // 通话时长
+                // Thời lượng cuộc gọi
                 Text(
-                  '通话时长: ${_formatDuration(_callDuration)}',
+                  'Thời lượng cuộc gọi: ${_formatDuration(_callDuration)}',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.8),
                     fontSize: 16,
@@ -474,7 +474,9 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
                       _buildEndCallButton(),
                       const SizedBox(width: 40),
                       _buildControlButton(
-                        icon: Icons.pan_tool, // 改为手掌图标表示打断
+                        icon:
+                            Icons
+                                .pan_tool, // Đổi thành biểu tượng bàn tay chỉ ngắt
                         color: Colors.white,
                         backgroundColor: Colors.orange,
                         onPressed: _sendAbortMessage,
@@ -584,9 +586,9 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
   Widget _buildEndCallButton() {
     return GestureDetector(
       onTap: () async {
-        // 先发送打断消息
+        // Trước tiên gửi tin nhắn ngắt
         await _xiaozhiService.sendAbortMessage();
-        // 然后返回上一级页面
+        // Sau đó quay về trang trước
         Navigator.pop(context);
       },
       child: Container(
@@ -612,7 +614,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
     );
   }
 
-  // 显示自定义Snackbar
+  // Hiển thị Snackbar tùy chỉnh
   void _showCustomSnackbar({
     required String message,
     required IconData icon,
