@@ -1,138 +1,138 @@
 ---
-title: 小智Python端
-description: 使用Python实现的小智语音客户端，旨在通过代码学习和在没有硬件条件下体验AI小智的语音功能
+title: Phiên bản Python của Tiểu Trí
+description: Phiên bản Python của Tiểu Trí sử dụng Python để thực hiện, nhằm học tập qua mã nguồn và trải nghiệm chức năng giọng nói của AI Tiểu Trí mà không cần phần cứng
 ---
 
-# 小智Python客户端
+# Phiên bản Python của Tiểu Trí
 
 <div class="project-header">
   <div class="project-badges">
-    <span class="badge platform">跨平台</span>
+    <span class="badge platform">Đa nền tảng</span>
     <span class="badge language">Python</span>
-    <span class="badge status">稳定版本</span>
+    <span class="badge status">Phiên bản ổn định</span>
   </div>
 </div>
 
-## 项目简介
+## Giới thiệu dự án
 
-py-xiaozhi 是一个使用 Python 实现的小智语音客户端，旨在通过代码学习和在没有硬件条件下体验 AI 小智的语音功能。支持语音输入与识别，实现智能人机交互，提供自然流畅的对话体验。
+py-xiaozhi là một phiên bản Python của Tiểu Trí, nhằm học tập qua mã nguồn và trải nghiệm chức năng giọng nói của AI Tiểu Trí mà không cần phần cứng. Hỗ trợ đầu vào và nhận dạng giọng nói, thực hiện tương tác thông minh giữa người và máy, cung cấp trải nghiệm đối thoại tự nhiên và mượt mà.
 
 <div class="app-showcase">
   <div class="showcase-description">
-    <p>py-xiaozhi 提供了跨平台的小智语音交互体验，不仅支持GUI界面，还提供命令行模式，适用于各种环境。通过简单易用的接口和丰富的功能，让用户能够方便地与AI进行语音和文字交流。</p>
+    <p>py-xiaozhi cung cấp trải nghiệm tương tác giọng nói đa nền tảng của Tiểu Trí, không chỉ hỗ trợ giao diện GUI mà còn cung cấp chế độ dòng lệnh, phù hợp với các môi trường khác nhau. Thông qua giao diện đơn giản và dễ sử dụng cùng các chức năng phong phú, giúp người dùng dễ dàng giao tiếp giọng nói và văn bản với AI.</p>
   </div>
 </div>
 
-## 核心功能
+## Chức năng cốt lõi
 
 <div class="features-grid">
   <div class="feature-card">
     <div class="feature-icon">🗣️</div>
-    <h3>AI语音交互</h3>
-    <p>支持语音输入与识别，实现智能人机交互，提供自然流畅的对话体验</p>
+    <h3>Tương tác giọng nói AI</h3>
+    <p>Hỗ trợ đầu vào và nhận dạng giọng nói, thực hiện tương tác thông minh giữa người và máy, cung cấp trải nghiệm đối thoại tự nhiên và mượt mà</p>
   </div>
   
   <div class="feature-card">
     <div class="feature-icon">👁️</div>
-    <h3>视觉多模态</h3>
-    <p>支持图像识别和处理，提供多模态交互能力，理解图像内容</p>
+    <h3>Đa phương thức hình ảnh</h3>
+    <p>Hỗ trợ nhận dạng và xử lý hình ảnh, cung cấp khả năng tương tác đa phương thức, hiểu nội dung hình ảnh</p>
   </div>
   
   <div class="feature-card">
     <div class="feature-icon">🏠</div>
-    <h3>IoT 设备集成</h3>
-    <p>支持智能家居设备控制，实现更多物联网功能，打造智能家居生态</p>
+    <h3>Tích hợp thiết bị IoT</h3>
+    <p>Hỗ trợ điều khiển thiết bị gia đình thông minh, thực hiện nhiều chức năng IoT hơn, xây dựng hệ sinh thái gia đình thông minh</p>
   </div>
   
   <div class="feature-card">
     <div class="feature-icon">🎵</div>
-    <h3>联网音乐播放</h3>
-    <p>基于pygame实现的高性能音乐播放器，支持歌词显示和本地缓存</p>
+    <h3>Phát nhạc trực tuyến</h3>
+    <p>Trình phát nhạc hiệu suất cao dựa trên pygame, hỗ trợ hiển thị lời bài hát và bộ nhớ đệm cục bộ</p>
   </div>
   
   <div class="feature-card">
     <div class="feature-icon">🔊</div>
-    <h3>语音唤醒</h3>
-    <p>支持唤醒词激活交互，免去手动操作的烦恼（默认关闭需要手动开启）</p>
+    <h3>Đánh thức bằng giọng nói</h3>
+    <p>Hỗ trợ kích hoạt tương tác bằng từ đánh thức, tránh phiền hà của thao tác thủ công (mặc định tắt, cần kích hoạt thủ công)</p>
   </div>
   
   <div class="feature-card">
     <div class="feature-icon">💬</div>
-    <h3>自动对话模式</h3>
-    <p>实现连续对话体验，提升用户交互流畅度</p>
+    <h3>Chế độ đối thoại tự động</h3>
+    <p>Thực hiện trải nghiệm đối thoại liên tục, nâng cao độ mượt mà của tương tác người dùng</p>
   </div>
 </div>
 
-## 功能亮点
+## Điểm nổi bật chức năng
 
-### 图形化界面与命令行模式
+### Giao diện đồ họa và chế độ dòng lệnh
 
 <div class="feature-highlight">
   <div class="highlight-content">
-    <h3>多种运行模式</h3>
+    <h3>Các chế độ chạy đa dạng</h3>
     <ul>
-      <li>提供直观易用的 GUI，支持小智表情与文本显示</li>
-      <li>支持 CLI 运行，适用于嵌入式设备或无 GUI 环境</li>
-      <li>跨平台支持，兼容 Windows 10+、macOS 10.15+ 和 Linux 系统</li>
-      <li>统一的音量控制接口，适应不同环境需求</li>
+      <li>Cung cấp GUI trực quan và dễ sử dụng, hỗ trợ biểu cảm Tiểu Trí và hiển thị văn bản</li>
+      <li>Hỗ trợ chạy CLI, phù hợp với thiết bị nhúng hoặc môi trường không có GUI</li>
+      <li>Hỗ trợ đa nền tảng, tương thích với Windows 10+, macOS 10.15+ và hệ thống Linux</li>
+      <li>Giao diện điều khiển âm lượng thống nhất, thích ứng với nhu cầu môi trường khác nhau</li>
     </ul>
   </div>
 </div>
 
-### 安全稳定的连接
+### Kết nối an toàn và ổn định
 
 <div class="feature-highlight reverse">
   <div class="highlight-content">
-    <h3>优化的连接体验</h3>
+    <h3>Trải nghiệm kết nối tối ưu</h3>
     <ul>
-      <li>支持 WSS 协议，保障音频数据的安全性</li>
-      <li>首次使用时，程序自动复制验证码并打开浏览器</li>
-      <li>自动获取 MAC 地址，避免地址冲突</li>
-      <li>断线重连功能，保证连接稳定性</li>
-      <li>跨平台兼容性优化</li>
+      <li>Hỗ trợ giao thức WSS, đảm bảo an toàn dữ liệu âm thanh</li>
+      <li>Lần đầu sử dụng, chương trình tự động sao chép mã xác thực và mở trình duyệt</li>
+      <li>Tự động lấy địa chỉ MAC, tránh xung đột địa chỉ</li>
+      <li>Chức năng kết nối lại khi ngắt, đảm bảo độ ổn định kết nối</li>
+      <li>Tối ưu hóa tương thích đa nền tảng</li>
     </ul>
   </div>
 </div>
 
-## 系统要求
+## Yêu cầu hệ thống
 
 - **Python**: 3.8+
-- **操作系统**: Windows 10+, macOS 10.15+, Linux
-- **依赖**: PyAudio, PyQt5, pygame, websocket-client等
+- **Hệ điều hành**: Windows 10+, macOS 10.15+, Linux
+- **Phụ thuộc**: PyAudio, PyQt5, pygame, websocket-client v.v.
 
-## 安装与使用
+## Cài đặt và sử dụng
 
-### 安装方法
+### Phương pháp cài đặt
 
-1. 克隆项目仓库:
+1. Sao chép kho dự án:
 ```bash
 git clone https://github.com/huangjunsen0406/py-xiaozhi.git
 ```
 
-2. 安装依赖:
+2. Cài đặt phụ thuộc:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. 运行应用:
+3. Chạy ứng dụng:
 ```bash
 python main.py
 ```
 
-## 配置说明
+## Giải thích cấu hình
 
-客户端支持多种配置选项:
+Ứng dụng khách hỗ trợ nhiều tùy chọn cấu hình:
 
-- 语音输入/输出设备选择
-- 音量控制
-- 唤醒词设置
-- 服务器连接设置
-- GUI/CLI模式切换
+- Chọn thiết bị đầu vào/đầu ra giọng nói
+- Điều khiển âm lượng
+- Thiết lập từ đánh thức
+- Thiết lập kết nối máy chủ
+- Chuyển đổi chế độ GUI/CLI
 
-## 相关链接
+## Liên kết liên quan
 
-- [项目GitHub仓库](https://github.com/huangjunsen0406/py-xiaozhi)
-- [问题反馈](https://github.com/huangjunsen0406/py-xiaozhi/issues)
+- [Kho GitHub của dự án](https://github.com/huangjunsen0406/py-xiaozhi)
+- [Phản hồi vấn đề](https://github.com/huangjunsen0406/py-xiaozhi/issues)
 
 <style>
 .project-header {
@@ -250,4 +250,4 @@ python main.py
     grid-template-columns: 1fr;
   }
 }
-</style> 
+</style>

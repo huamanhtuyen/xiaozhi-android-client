@@ -1,6 +1,6 @@
 ---
 title: xiaozhi-esp32-server
-description: 基于ESP32的小智开源服务端，轻量级且高效的语音交互服务
+description: Dịch vụ server mã nguồn mở xiaozhi-esp32 dựa trên ESP32, nhẹ nhàng và hiệu quả cho tương tác giọng nói
 ---
 
 # xiaozhi-esp32-server
@@ -12,165 +12,165 @@ description: 基于ESP32的小智开源服务端，轻量级且高效的语音�
   <div class="project-badges">
     <span class="badge platform">ESP32</span>
     <span class="badge language">Python</span>
-    <span class="badge status">活跃开发中</span>
+    <span class="badge status">Đang phát triển tích cực</span>
   </div>
 </div>
 
 <div class="project-intro">
-  <p>xiaozhi-esp32-server是为开源智能硬件项目<a href="https://github.com/78/xiaozhi-esp32" target="_blank">xiaozhi-esp32</a>提供的后端服务，根据<a href="https://ccnphfhqs21z.feishu.cn/wiki/M0XiwldO9iJwHikpXD5cEx71nKh" target="_blank">小智通信协议</a>使用Python实现，帮助您快速搭建小智服务器。</p>
+  <p>xiaozhi-esp32-server là dịch vụ backend được cung cấp cho dự án phần cứng thông minh mã nguồn mở <a href="https://github.com/78/xiaozhi-esp32" target="_blank">xiaozhi-esp32</a>, được triển khai bằng Python dựa trên <a href="https://ccnphfhqs21z.feishu.cn/wiki/M0XiwldO9iJwHikpXD5cEx71nKh" target="_blank">Giao thức giao tiếp xiaozhi</a>, giúp bạn nhanh chóng thiết lập server xiaozhi.</p>
 </div>
 
-## 适用人群
+## Đối tượng phù hợp
 
-本项目需要配合ESP32硬件设备使用。如果您已经购买了ESP32相关硬件，且成功对接过虾哥部署的后端服务，并希望独立搭建自己的`xiaozhi-esp32`后端服务，那么本项目非常适合您。
+Dự án này cần được sử dụng cùng với thiết bị phần cứng ESP32. Nếu bạn đã mua phần cứng liên quan đến ESP32 và đã kết nối thành công với dịch vụ backend do xiaoge triển khai, và bạn muốn tự thiết lập dịch vụ backend `xiaozhi-esp32` độc lập, thì dự án này rất phù hợp với bạn.
 
 <div class="warning-box">
-  <h3>⚠️ 重要提示</h3>
+  <h3>⚠️ Lưu ý quan trọng</h3>
   <ol>
-    <li>本项目为开源软件，与对接的任何第三方API服务商（包括但不限于语音识别、大模型、语音合成等平台）均不存在商业合作关系，不为其服务质量及资金安全提供任何形式的担保。建议使用者优先选择持有相关业务牌照的服务商，并仔细阅读其服务协议及隐私政策。本软件不托管任何账户密钥、不参与资金流转、不承担充值资金损失风险。</li>
-    <li>本项目成立时间较短，还未通过网络安全测评，请勿在生产环境中使用。如果您在公网环境中部署学习本项目，请务必在配置文件<code>config.yaml</code>中开启防护。</li>
+    <li>Dự án này là phần mềm mã nguồn mở, không có bất kỳ mối quan hệ hợp tác thương mại nào với bất kỳ nhà cung cấp dịch vụ API bên thứ ba nào (bao gồm nhưng không giới hạn ở các nền tảng nhận dạng giọng nói, mô hình lớn, tổng hợp giọng nói, v.v.), không cung cấp bất kỳ hình thức bảo đảm nào cho chất lượng dịch vụ và an toàn tài chính của chúng. Khuyến nghị người dùng ưu tiên chọn các nhà cung cấp dịch vụ có giấy phép kinh doanh liên quan và đọc kỹ thỏa thuận dịch vụ cũng như chính sách bảo mật của họ. Phần mềm này không lưu trữ bất kỳ khóa tài khoản nào, không tham gia vào luồng tiền, không chịu trách nhiệm rủi ro mất tiền nạp.</li>
+    <li>Dự án này được thành lập chưa lâu, chưa qua đánh giá an ninh mạng, vui lòng không sử dụng trong môi trường sản xuất. Nếu bạn triển khai dự án này trong môi trường mạng công cộng, hãy chắc chắn kích hoạt bảo vệ trong file cấu hình <code>config.yaml</code>.</li>
   </ol>
 </div>
 
-## 核心特性
+## Đặc điểm cốt lõi
 
 <div class="features-container">
   <div class="feature-item">
     <div class="feature-icon">🔄</div>
-    <h3>通信协议</h3>
-    <p>基于<code>xiaozhi-esp32</code>协议，通过WebSocket实现数据交互</p>
+    <h3>Giao thức giao tiếp</h3>
+    <p>Dựa trên giao thức <code>xiaozhi-esp32</code>, thực hiện tương tác dữ liệu qua WebSocket</p>
   </div>
   
   <div class="feature-item">
     <div class="feature-icon">💬</div>
-    <h3>对话交互</h3>
-    <p>支持唤醒对话、手动对话及实时打断，长时间无对话时自动休眠</p>
+    <h3>Tương tác đối thoại</h3>
+    <p>Hỗ trợ đánh thức đối thoại, đối thoại thủ công và ngắt lời thời gian thực, tự động ngủ khi không có đối thoại trong thời gian dài</p>
   </div>
   
   <div class="feature-item">
     <div class="feature-icon">🧠</div>
-    <h3>意图识别</h3>
-    <p>支持使用LLM意图识别、function call函数调用，减少硬编码意图判断</p>
+    <h3>Nhận dạng ý định</h3>
+    <p>Hỗ trợ nhận dạng ý định LLM, gọi hàm function call, giảm phán đoán ý định mã hóa cứng</p>
   </div>
   
   <div class="feature-item">
     <div class="feature-icon">🌐</div>
-    <h3>多语言识别</h3>
-    <p>支持国语、粤语、英语、日语、韩语（默认使用FunASR）</p>
+    <h3>Nhận dạng đa ngôn ngữ</h3>
+    <p>Hỗ trợ tiếng Quan Thoại, tiếng Quảng Đông, tiếng Anh, tiếng Nhật, tiếng Hàn (mặc định sử dụng FunASR)</p>
   </div>
   
   <div class="feature-item">
     <div class="feature-icon">🤖</div>
-    <h3>LLM模块</h3>
-    <p>支持灵活切换LLM模块，默认使用ChatGLMLLM，也可选用阿里百炼、DeepSeek、Ollama等</p>
+    <h3>Mô-đun LLM</h3>
+    <p>Hỗ trợ chuyển đổi linh hoạt mô-đun LLM, mặc định sử dụng ChatGLMLLM, cũng có thể chọn Alibaba Bailian, DeepSeek, Ollama, v.v.</p>
   </div>
   
   <div class="feature-item">
     <div class="feature-icon">🔊</div>
-    <h3>TTS模块</h3>
-    <p>支持EdgeTTS（默认）、火山引擎豆包TTS等多种TTS接口，满足语音合成需求</p>
+    <h3>Mô-đun TTS</h3>
+    <p>Hỗ trợ EdgeTTS (mặc định), Volcano Engine Doubao TTS và nhiều giao diện TTS khác, đáp ứng nhu cầu tổng hợp giọng nói</p>
   </div>
   
   <div class="feature-item">
     <div class="feature-icon">📝</div>
-    <h3>记忆功能</h3>
-    <p>支持超长记忆、本地总结记忆、无记忆三种模式，满足不同场景需求</p>
+    <h3>Chức năng bộ nhớ</h3>
+    <p>Hỗ trợ ba chế độ: bộ nhớ siêu dài, bộ nhớ tóm tắt cục bộ, không bộ nhớ, đáp ứng nhu cầu các cảnh khác nhau</p>
   </div>
   
   <div class="feature-item">
     <div class="feature-icon">🏠</div>
-    <h3>IOT功能</h3>
-    <p>支持管理注册设备IOT功能，支持基于对话上下文语境下的智能物联网控制</p>
+    <h3>Chức năng IOT</h3>
+    <p>Hỗ trợ quản lý chức năng IOT thiết bị đăng ký, hỗ trợ điều khiển IoT thông minh dựa trên ngữ cảnh đối thoại</p>
   </div>
   
   <div class="feature-item">
     <div class="feature-icon">🖥️</div>
-    <h3>智控台</h3>
-    <p>提供Web管理界面，支持智能体管理、用户管理、系统配置等功能</p>
+    <h3>Bảng điều khiển thông minh</h3>
+    <p>Cung cấp giao diện quản lý Web, hỗ trợ quản lý agent thông minh, quản lý người dùng, cấu hình hệ thống, v.v.</p>
   </div>
 </div>
 
-## 部署方式
+## Cách triển khai
 
-本项目提供两种部署方式，请根据您的具体需求选择：
+Dự án cung cấp hai cách triển khai, vui lòng chọn theo nhu cầu cụ thể của bạn:
 
 <div class="deployment-table">
   <table>
     <thead>
       <tr>
-        <th>部署方式</th>
-        <th>特点</th>
-        <th>适用场景</th>
+        <th>Cách triển khai</th>
+        <th>Đặc điểm</th>
+        <th>Cảnh sử dụng phù hợp</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><strong>最简化安装</strong></td>
-        <td>智能对话、IOT功能，数据存储在配置文件</td>
-        <td>低配置环境，无需数据库</td>
+        <td><strong>Cài đặt đơn giản nhất</strong></td>
+        <td>Đối thoại thông minh, chức năng IOT, dữ liệu lưu trữ trong file cấu hình</td>
+        <td>Môi trường cấu hình thấp, không cần cơ sở dữ liệu</td>
       </tr>
       <tr>
-        <td><strong>全模块安装</strong></td>
-        <td>智能对话、IOT、OTA、智控台，数据存储在数据库</td>
-        <td>完整功能体验</td>
+        <td><strong>Cài đặt đầy đủ mô-đun</strong></td>
+        <td>Đối thoại thông minh, IOT, OTA, bảng điều khiển thông minh, dữ liệu lưu trữ trong cơ sở dữ liệu</td>
+        <td>Trải nghiệm chức năng đầy đủ</td>
       </tr>
     </tbody>
   </table>
 </div>
 
-详细部署文档请参考：
-- [Docker部署文档](https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/Deployment.md)
-- [源码部署文档](https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/Deployment_all.md)
+Tài liệu triển khai chi tiết vui lòng tham khảo:
+- [Tài liệu triển khai Docker](https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/Deployment.md)
+- [Tài liệu triển khai mã nguồn](https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/Deployment_all.md)
 
-## 支持平台列表
+## Danh sách nền tảng hỗ trợ
 
-xiaozhi-esp32-server支持丰富的第三方平台和组件：
+xiaozhi-esp32-server hỗ trợ nhiều nền tảng và thành phần bên thứ ba phong phú:
 
-### LLM 语言模型
+### Mô hình ngôn ngữ LLM
 
 <div class="platform-item">
-  <h4>接口调用</h4>
-  <p><strong>支持平台：</strong>阿里百炼、火山引擎豆包、深度求索、智谱ChatGLM、Gemini、Ollama、Dify、Fastgpt、Coze</p>
-  <p><strong>免费平台：</strong>智谱ChatGLM、Gemini</p>
-  <p><em>实际上，任何支持openai接口调用的LLM均可接入使用</em></p>
+  <h4>Gọi giao diện</h4>
+  <p><strong>Nền tảng hỗ trợ:</strong> Alibaba Bailian, Volcano Engine Doubao, DeepSeek, Zhipu ChatGLM, Gemini, Ollama, Dify, Fastgpt, Coze</p>
+  <p><strong>Nền tảng miễn phí:</strong> Zhipu ChatGLM, Gemini</p>
+  <p><em>Thực tế, bất kỳ LLM nào hỗ trợ gọi giao diện openai đều có thể kết nối và sử dụng</em></p>
 </div>
 
-### TTS 语音合成
+### Tổng hợp giọng nói TTS
 
 <div class="platform-item">
-  <h4>接口调用</h4>
-  <p><strong>支持平台：</strong>EdgeTTS、火山引擎豆包TTS、腾讯云、阿里云TTS、CosyVoiceSiliconflow、TTS302AI、CozeCnTTS、GizwitsTTS、ACGNTTS、OpenAITTS</p>
-  <p><strong>免费平台：</strong>EdgeTTS、CosyVoiceSiliconflow(部分)</p>
+  <h4>Gọi giao diện</h4>
+  <p><strong>Nền tảng hỗ trợ:</strong> EdgeTTS, Volcano Engine Doubao TTS, Tencent Cloud, Alibaba Cloud TTS, CosyVoiceSiliconflow, TTS302AI, CozeCnTTS, GizwitsTTS, ACGNTTS, OpenAITTS</p>
+  <p><strong>Nền tảng miễn phí:</strong> EdgeTTS, CosyVoiceSiliconflow (một phần)</p>
   
-  <h4>本地服务</h4>
-  <p><strong>支持平台：</strong>FishSpeech、GPT_SOVITS_V2、GPT_SOVITS_V3、MinimaxTTS</p>
-  <p><strong>免费平台：</strong>FishSpeech、GPT_SOVITS_V2、GPT_SOVITS_V3、MinimaxTTS</p>
+  <h4>Dịch vụ cục bộ</h4>
+  <p><strong>Nền tảng hỗ trợ:</strong> FishSpeech, GPT_SOVITS_V2, GPT_SOVITS_V3, MinimaxTTS</p>
+  <p><strong>Nền tảng miễn phí:</strong> FishSpeech, GPT_SOVITS_V2, GPT_SOVITS_V3, MinimaxTTS</p>
 </div>
 
-### ASR 语音识别
+### Nhận dạng giọng nói ASR
 
 <div class="platform-item">
-  <h4>接口调用</h4>
-  <p><strong>支持平台：</strong>DoubaoASR</p>
+  <h4>Gọi giao diện</h4>
+  <p><strong>Nền tảng hỗ trợ:</strong> DoubaoASR</p>
   
-  <h4>本地服务</h4>
-  <p><strong>支持平台：</strong>FunASR、SherpaASR</p>
-  <p><strong>免费平台：</strong>FunASR、SherpaASR</p>
+  <h4>Dịch vụ cục bộ</h4>
+  <p><strong>Nền tảng hỗ trợ:</strong> FunASR, SherpaASR</p>
+  <p><strong>Nền tảng miễn phí:</strong> FunASR, SherpaASR</p>
 </div>
 
-### 更多组件
+### Các thành phần khác
 
-- **VAD语音活动检测**：支持SileroVAD（本地免费使用）
-- **记忆存储**：支持mem0ai（1000次/月额度）、mem_local_short（本地总结，免费）
-- **意图识别**：支持intent_llm（通过大模型识别意图）、function_call（通过大模型函数调用完成意图）
+- **Phát hiện hoạt động giọng nói VAD**: Hỗ trợ SileroVAD (sử dụng miễn phí cục bộ)
+- **Lưu trữ bộ nhớ**: Hỗ trợ mem0ai (1000 lần/tháng), mem_local_short (tóm tắt cục bộ, miễn phí)
+- **Nhận dạng ý định**: Hỗ trợ intent_llm (nhận dạng ý định qua mô hình lớn), function_call (hoàn thành ý định qua gọi hàm mô hình lớn)
 
-## 参与贡献
+## Tham gia đóng góp
 
-xiaozhi-esp32-server是一个活跃的开源项目，欢迎贡献代码或提交问题反馈：
+xiaozhi-esp32-server là một dự án mã nguồn mở đang hoạt động tích cực, chào đón đóng góp mã nguồn hoặc gửi phản hồi vấn đề:
 
-- [GitHub仓库](https://github.com/xinnan-tech/xiaozhi-esp32-server)
-- [问题反馈](https://github.com/xinnan-tech/xiaozhi-esp32-server/issues)
-- [致开发者的公开信](https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/contributor_open_letter.md)
+- [Kho GitHub](https://github.com/xinnan-tech/xiaozhi-esp32-server)
+- [Phản hồi vấn đề](https://github.com/xinnan-tech/xiaozhi-esp32-server/issues)
+- [Thư ngỏ gửi nhà phát triển](https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/contributor_open_letter.md)
 
 <style>
 .project-header {
@@ -472,4 +472,4 @@ xiaozhi-esp32-server是一个活跃的开源项目，欢迎贡献代码或提交
     grid-template-columns: 1fr;
   }
 }
-</style> 
+</style>
