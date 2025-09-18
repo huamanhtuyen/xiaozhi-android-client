@@ -10,7 +10,7 @@ import '../utils/device_util.dart';
 import '../utils/audio_util.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-/// 小智服务事件类型
+/// Loại sự kiện dịch vụ Xiaozhi
 enum XiaozhiServiceEventType {
   connected,
   disconnected,
@@ -22,7 +22,7 @@ enum XiaozhiServiceEventType {
   userMessage,
 }
 
-/// 小智服务事件
+/// Sự kiện dịch vụ Xiaozhi
 class XiaozhiServiceEvent {
   final XiaozhiServiceEventType type;
   final dynamic data;
@@ -30,24 +30,24 @@ class XiaozhiServiceEvent {
   XiaozhiServiceEvent(this.type, this.data);
 }
 
-/// 小智服务监听器
+/// Trình nghe dịch vụ Xiaozhi
 typedef XiaozhiServiceListener = void Function(XiaozhiServiceEvent event);
 
-/// 消息监听器
+/// Trình nghe tin nhắn
 typedef MessageListener = void Function(dynamic message);
 
-/// 小智服务
+/// Dịch vụ Xiaozhi
 class XiaozhiService {
   static const String TAG = "XiaozhiService";
   static const String DEFAULT_SERVER = "wss://ws.xiaozhi.ai";
 
-  // 单例实例
+  // Thực thể singleton
   static XiaozhiService? _instance;
 
   final String websocketUrl;
   final String macAddress;
   final String token;
-  String? _sessionId; // 会话ID将由服务器提供
+  String? _sessionId; // ID phiên sẽ được cung cấp bởi máy chủ
 
   XiaozhiWebSocketManager? _webSocketManager;
   bool _isConnected = false;
@@ -59,7 +59,7 @@ class XiaozhiService {
   bool _hasStartedCall = false;
   MessageListener? _messageListener;
 
-  /// 工厂构造函数，实现单例模式
+  /// Hàm tạo nhà máy, thực hiện mẫu singleton
   factory XiaozhiService({
     required String websocketUrl,
     required String macAddress,
@@ -75,7 +75,7 @@ class XiaozhiService {
     return _instance!;
   }
 
-  /// 内部构造函数
+  /// Hàm tạo nội bộ
   XiaozhiService._internal({
     required this.websocketUrl,
     required this.macAddress,
@@ -86,167 +86,172 @@ class XiaozhiService {
     _init();
   }
 
-  /// 获取实例
+  /// Lấy thực thể
   static XiaozhiService? get instance => _instance;
 
-  /// 切换到语音通话模式
+  /// Chuyển sang chế độ cuộc gọi thoại
   Future<void> switchToVoiceCallMode() async {
-    // 如果已经在语音通话模式，直接返回
+    // Nếu đã ở chế độ cuộc gọi thoại, trả về trực tiếp
     if (_isVoiceCallActive) return;
 
     try {
-      print('$TAG: 正在切换到语音通话模式');
+      print('$TAG: Đang chuyển sang chế độ cuộc gọi thoại');
 
-      // 简化初始化流程，确保干净状态
+      // Đơn giản hóa quy trình khởi tạo, đảm bảo trạng thái sạch
       await AudioUtil.stopPlaying();
       await AudioUtil.initRecorder();
       await AudioUtil.initPlayer();
 
       _isVoiceCallActive = true;
-      print('$TAG: 已切换到语音通话模式');
+      print('$TAG: Đã chuyển sang chế độ cuộc gọi thoại');
     } catch (e) {
-      print('$TAG: 切换到语音通话模式失败: $e');
+      print('$TAG: Chuyển sang chế độ cuộc gọi thoại thất bại: $e');
       rethrow;
     }
   }
 
-  /// 切换到普通聊天模式
+  /// Chuyển sang chế độ trò chuyện thông thường
   Future<void> switchToChatMode() async {
-    // 如果已经在普通聊天模式，直接返回
+    // Nếu đã ở chế độ trò chuyện thông thường, trả về trực tiếp
     if (!_isVoiceCallActive) return;
 
     try {
-      print('$TAG: 正在切换到普通聊天模式');
+      print('$TAG: Đang chuyển sang chế độ trò chuyện thông thường');
 
-      // 停止语音通话相关的活动
+      // Dừng các hoạt động liên quan đến cuộc gọi thoại
       await stopListeningCall();
 
-      // 确保播放器停止
+      // Đảm bảo trình phát đã dừng
       await AudioUtil.stopPlaying();
 
       _isVoiceCallActive = false;
-      print('$TAG: 已切换到普通聊天模式');
+      print('$TAG: Đã chuyển sang chế độ trò chuyện thông thường');
     } catch (e) {
-      print('$TAG: 切换到普通聊天模式失败: $e');
+      print('$TAG: Chuyển sang chế độ trò chuyện thông thường thất bại: $e');
       _isVoiceCallActive = false;
     }
   }
 
-  /// 初始化
+  /// Khởi tạo
   Future<void> _init() async {
-    // 使用配置中的MAC地址作为设备ID
-    print('$TAG: 初始化完成，使用MAC地址作为设备ID: $macAddress');
+    // Sử dụng địa chỉ MAC từ cấu hình làm ID thiết bị
+    print(
+      '$TAG: Khởi tạo hoàn tất, sử dụng địa chỉ MAC làm ID thiết bị: $macAddress',
+    );
 
-    // 初始化WebSocket管理器，启用 token
+    // Khởi tạo trình quản lý WebSocket, kích hoạt token
     _webSocketManager = XiaozhiWebSocketManager(
       deviceId: macAddress,
       enableToken: true,
     );
 
-    // 添加WebSocket事件监听
+    // Thêm trình nghe sự kiện WebSocket
     _webSocketManager!.addListener(_onWebSocketEvent);
 
-    // 初始化音频工具
+    // Khởi tạo công cụ âm thanh
     await AudioUtil.initRecorder();
     await AudioUtil.initPlayer();
   }
 
-  /// 设置消息监听器
+  /// Thiết lập trình nghe tin nhắn
   void setMessageListener(MessageListener listener) {
     _messageListener = listener;
   }
 
-  /// 添加事件监听器
+  /// Thêm trình nghe sự kiện
   void addListener(XiaozhiServiceListener listener) {
     if (!_listeners.contains(listener)) {
       _listeners.add(listener);
     }
   }
 
-  /// 移除事件监听器
+  /// Xóa trình nghe sự kiện
   void removeListener(XiaozhiServiceListener listener) {
     _listeners.remove(listener);
   }
 
-  /// 分发事件到所有监听器
+  /// Phân phối sự kiện đến tất cả trình nghe
   void _dispatchEvent(XiaozhiServiceEvent event) {
     for (var listener in _listeners) {
       listener(event);
     }
   }
 
-  /// 连接到小智服务
+  /// Kết nối đến dịch vụ Xiaozhi
   Future<void> connect() async {
     if (_isConnected) return;
 
     try {
-      print('$TAG: 开始连接服务器...');
+      print('$TAG: Bắt đầu kết nối máy chủ...');
 
-      // 创建WebSocket管理器
+      // Tạo trình quản lý WebSocket
       _webSocketManager = XiaozhiWebSocketManager(
         deviceId: macAddress,
         enableToken: true,
       );
 
-      // 添加WebSocket事件监听
+      // Thêm trình nghe sự kiện WebSocket
       _webSocketManager!.addListener(_onWebSocketEvent);
 
-      // 连接WebSocket
+      // Kết nối WebSocket
       await _webSocketManager!.connect(websocketUrl, token);
     } catch (e) {
-      print('$TAG: 连接失败: $e');
+      print('$TAG: Kết nối thất bại: $e');
       _dispatchEvent(
-        XiaozhiServiceEvent(XiaozhiServiceEventType.error, '连接小智服务失败: $e'),
+        XiaozhiServiceEvent(
+          XiaozhiServiceEventType.error,
+          'Kết nối dịch vụ Xiaozhi thất bại: $e',
+        ),
       );
     }
   }
 
-  /// 断开小智服务连接
+  /// Ngắt kết nối dịch vụ Xiaozhi
   Future<void> disconnect() async {
     if (!_isConnected || _webSocketManager == null) return;
 
     try {
-      // 取消音频流订阅
+      // Hủy đăng ký luồng âm thanh
       await _audioStreamSubscription?.cancel();
       _audioStreamSubscription = null;
 
-      // 停止音频录制
+      // Dừng ghi âm
       if (AudioUtil.isRecording) {
         await AudioUtil.stopRecording();
       }
 
-      // 断开WebSocket连接
+      // Ngắt kết nối WebSocket
       await _webSocketManager!.disconnect();
       _webSocketManager = null;
       _isConnected = false;
     } catch (e) {
-      print('$TAG: 断开连接失败: $e');
+      print('$TAG: Ngắt kết nối thất bại: $e');
     }
   }
 
-  /// 发送文本消息
+  /// Gửi tin nhắn văn bản
   Future<String> sendTextMessage(String message) async {
     if (!_isConnected && _webSocketManager == null) {
       await connect();
     }
 
     try {
-      // 创建一个Completer来等待响应
+      // Tạo một Completer để chờ phản hồi
       final completer = Completer<String>();
       bool hasResponse = false;
 
-      print('$TAG: 开始发送文本消息: $message');
+      print('$TAG: Bắt đầu gửi tin nhắn văn bản: $message');
 
-      // 添加消息监听器，监听所有可能的回复
+      // Thêm trình nghe tin nhắn, nghe tất cả phản hồi có thể
       void onceListener(XiaozhiServiceEvent event) {
         if (event.type == XiaozhiServiceEventType.textMessage) {
-          // 忽略echo消息（即我们发送的消息）
+          // Bỏ qua tin nhắn echo (tức là tin nhắn chúng ta gửi)
           if (event.data == message) {
-            print('$TAG: 忽略echo消息: ${event.data}');
+            print('$TAG: Bỏ qua tin nhắn echo: ${event.data}');
             return;
           }
 
-          print('$TAG: 收到服务器响应: ${event.data}');
+          print('$TAG: Nhận phản hồi từ máy chủ: ${event.data}');
           if (!completer.isCompleted) {
             hasResponse = true;
             completer.complete(event.data as String);
@@ -254,71 +259,76 @@ class XiaozhiService {
           }
         } else if (event.type == XiaozhiServiceEventType.error &&
             !completer.isCompleted) {
-          print('$TAG: 收到错误响应: ${event.data}');
+          print('$TAG: Nhận phản hồi lỗi: ${event.data}');
           completer.completeError(event.data.toString());
           removeListener(onceListener);
         }
       }
 
-      // 先添加监听器，确保不会错过任何消息
+      // Thêm trình nghe trước, đảm bảo không bỏ lỡ tin nhắn nào
       addListener(onceListener);
 
-      // 发送文本请求
-      print('$TAG: 发送文本请求: $message');
+      // Gửi yêu cầu văn bản
+      print('$TAG: Gửi yêu cầu văn bản: $message');
       _webSocketManager!.sendTextRequest(message);
 
-      // 设置超时，15秒比10秒更宽松一些
+      // Thiết lập thời gian chờ, 15 giây rộng rãi hơn 10 giây
       final timeoutTimer = Timer(const Duration(seconds: 15), () {
         if (!completer.isCompleted) {
-          print('$TAG: 请求超时，15秒内没有收到响应');
-          completer.completeError('请求超时');
+          print(
+            '$TAG: Yêu cầu hết thời gian, không nhận được phản hồi trong 15 giây',
+          );
+          completer.completeError('Yêu cầu hết thời gian');
           removeListener(onceListener);
         }
       });
 
-      // 等待响应
+      // Chờ phản hồi
       try {
         final result = await completer.future;
-        // 取消超时定时器
+        // Hủy bộ đếm thời gian hết hạn
         timeoutTimer.cancel();
         return result;
       } catch (e) {
-        // 取消超时定时器
+        // Hủy bộ đếm thời gian hết hạn
         timeoutTimer.cancel();
         rethrow;
       }
     } catch (e) {
-      print('$TAG: 发送消息失败: $e');
+      print('$TAG: Gửi tin nhắn thất bại: $e');
       rethrow;
     }
   }
 
-  /// 连接语音通话
+  /// Kết nối cuộc gọi thoại
   Future<void> connectVoiceCall() async {
     try {
-      // 简化流程，确保权限和音频准备就绪
+      // Đơn giản hóa quy trình, đảm bảo quyền và âm thanh sẵn sàng
       if (Platform.isIOS || Platform.isAndroid) {
         final status = await Permission.microphone.request();
         if (status != PermissionStatus.granted) {
-          print('$TAG: 麦克风权限被拒绝');
+          print('$TAG: Quyền micro bị từ chối');
           _dispatchEvent(
-            XiaozhiServiceEvent(XiaozhiServiceEventType.error, '麦克风权限被拒绝'),
+            XiaozhiServiceEvent(
+              XiaozhiServiceEventType.error,
+              'Quyền micro bị từ chối',
+            ),
           );
           return;
         }
       }
 
-      // 初始化音频系统
+      // Khởi tạo hệ thống âm thanh
       await AudioUtil.stopPlaying();
       await AudioUtil.initRecorder();
       await AudioUtil.initPlayer();
 
-      print('$TAG: 正在连接 $websocketUrl');
-      print('$TAG: 设备ID: $macAddress');
-      print('$TAG: Token启用: true');
-      print('$TAG: 使用Token: $token');
+      print('$TAG: Đang kết nối $websocketUrl');
+      print('$TAG: ID thiết bị: $macAddress');
+      print('$TAG: Token kích hoạt: true');
+      print('$TAG: Sử dụng Token: $token');
 
-      // 使用 WebSocketManager 连接
+      // Sử dụng WebSocketManager để kết nối
       _webSocketManager = XiaozhiWebSocketManager(
         deviceId: macAddress,
         enableToken: true,
@@ -326,59 +336,59 @@ class XiaozhiService {
       _webSocketManager!.addListener(_onWebSocketEvent);
       await _webSocketManager!.connect(websocketUrl, token);
     } catch (e) {
-      print('$TAG: 连接失败: $e');
+      print('$TAG: Kết nối thất bại: $e');
       rethrow;
     }
   }
 
-  /// 结束语音通话
+  /// Kết thúc cuộc gọi thoại
   Future<void> disconnectVoiceCall() async {
     if (_webSocketManager == null) return;
 
     try {
-      // 停止音频录制
+      // Dừng ghi âm
       if (AudioUtil.isRecording) {
         await AudioUtil.stopRecording();
       }
 
-      // 停止音频播放
+      // Dừng phát âm thanh
       await AudioUtil.stopPlaying();
 
-      // 取消音频流订阅
+      // Hủy đăng ký luồng âm thanh
       await _audioStreamSubscription?.cancel();
       _audioStreamSubscription = null;
 
-      // 直接断开连接
+      // Ngắt kết nối trực tiếp
       await disconnect();
     } catch (e) {
-      // 忽略断开连接时的错误
-      print('$TAG: 结束语音通话时发生错误: $e');
+      // Bỏ qua lỗi khi ngắt kết nối
+      print('$TAG: Lỗi xảy ra khi kết thúc cuộc gọi thoại: $e');
     }
   }
 
-  /// 开始说话
+  /// Bắt đầu nói
   Future<void> startSpeaking() async {
     try {
       final message = {'type': 'speak', 'state': 'start', 'mode': 'auto'};
       _webSocketManager?.sendMessage(jsonEncode(message));
-      print('$TAG: 已发送开始说话消息');
+      print('$TAG: Đã gửi tin nhắn bắt đầu nói');
     } catch (e) {
-      print('$TAG: 开始说话失败: $e');
+      print('$TAG: Bắt đầu nói thất bại: $e');
     }
   }
 
-  /// 停止说话
+  /// Dừng nói
   Future<void> stopSpeaking() async {
     try {
       final message = {'type': 'speak', 'state': 'stop', 'mode': 'auto'};
       _webSocketManager?.sendMessage(jsonEncode(message));
-      print('$TAG: 已发送停止说话消息');
+      print('$TAG: Đã gửi tin nhắn dừng nói');
     } catch (e) {
-      print('$TAG: 停止说话失败: $e');
+      print('$TAG: Dừng nói thất bại: $e');
     }
   }
 
-  /// 发送listen消息
+  /// Gửi tin nhắn listen
   void _sendListenMessage() async {
     try {
       final listenMessage = {
@@ -388,73 +398,84 @@ class XiaozhiService {
         'mode': 'auto',
       };
       _webSocketManager?.sendMessage(jsonEncode(listenMessage));
-      print('$TAG: 已发送listen消息');
+      print('$TAG: Đã gửi tin nhắn listen');
 
-      // 开始录音
+      // Bắt đầu ghi âm
       _isVoiceCallActive = true;
       await AudioUtil.startRecording();
     } catch (e) {
-      print('$TAG: 发送listen消息失败: $e');
+      print('$TAG: Gửi tin nhắn listen thất bại: $e');
       _dispatchEvent(
-        XiaozhiServiceEvent(XiaozhiServiceEventType.error, '发送listen消息失败: $e'),
+        XiaozhiServiceEvent(
+          XiaozhiServiceEventType.error,
+          'Gửi tin nhắn listen thất bại: $e',
+        ),
       );
     }
   }
 
-  /// 开始听说（语音通话模式）
+  /// Bắt đầu nghe nói (chế độ cuộc gọi thoại)
   Future<void> startListeningCall() async {
     try {
-      // 确保已经有会话ID
+      // Đảm bảo đã có ID phiên
       if (_sessionId == null) {
-        print('$TAG: 没有会话ID，无法开始监听，等待会话ID初始化...');
-        // 等待短暂时间，然后重新检查会话ID
+        print(
+          '$TAG: Không có ID phiên, không thể bắt đầu nghe, chờ khởi tạo ID phiên...',
+        );
+        // Chờ một khoảng thời gian ngắn, sau đó kiểm tra lại ID phiên
         await Future.delayed(const Duration(milliseconds: 500));
         if (_sessionId == null) {
-          print('$TAG: 会话ID仍然为空，放弃开始监听');
-          throw Exception('会话ID为空，无法开始录音');
+          print('$TAG: ID phiên vẫn rỗng, bỏ qua bắt đầu nghe');
+          throw Exception('ID phiên rỗng, không thể bắt đầu ghi âm');
         }
       }
 
-      print('$TAG: 使用会话ID开始录音: $_sessionId');
+      print('$TAG: Sử dụng ID phiên để bắt đầu ghi âm: $_sessionId');
 
-      // 请求麦克风权限
+      // Yêu cầu quyền micro
       if (Platform.isIOS) {
         final micStatus = await Permission.microphone.status;
         if (micStatus != PermissionStatus.granted) {
           final result = await Permission.microphone.request();
           if (result != PermissionStatus.granted) {
-            print('$TAG: 麦克风权限被拒绝');
+            print('$TAG: Quyền micro bị từ chối');
             _dispatchEvent(
-              XiaozhiServiceEvent(XiaozhiServiceEventType.error, '麦克风权限被拒绝'),
+              XiaozhiServiceEvent(
+                XiaozhiServiceEventType.error,
+                'Quyền micro bị từ chối',
+              ),
             );
             return;
           }
         }
 
-        // 确保音频会话已初始化
+        // Đảm bảo phiên âm thanh đã được khởi tạo
         await AudioUtil.initRecorder();
       } else {
-        // Android权限请求
+        // Yêu cầu quyền Android
         final status = await Permission.microphone.request();
         if (status.isDenied) {
-          print('$TAG: 麦克风权限被拒绝');
+          print('$TAG: Quyền micro bị từ chối');
           _dispatchEvent(
-            XiaozhiServiceEvent(XiaozhiServiceEventType.error, '麦克风权限被拒绝'),
+            XiaozhiServiceEvent(
+              XiaozhiServiceEventType.error,
+              'Quyền micro bị từ chối',
+            ),
           );
           return;
         }
       }
 
-      // 开始录音
+      // Bắt đầu ghi âm
       await AudioUtil.startRecording();
 
-      // 设置音频流订阅
+      // Thiết lập đăng ký luồng âm thanh
       _audioStreamSubscription = AudioUtil.audioStream.listen((opusData) {
-        // 发送音频数据
+        // Gửi dữ liệu âm thanh
         _webSocketManager?.sendBinaryMessage(opusData);
       });
 
-      // 发送开始监听命令
+      // Gửi lệnh bắt đầu nghe
       final message = {
         'session_id': _sessionId,
         'type': 'listen',
@@ -462,24 +483,24 @@ class XiaozhiService {
         'mode': 'auto',
       };
       _webSocketManager?.sendMessage(jsonEncode(message));
-      print('$TAG: 已发送开始监听消息 (语音通话模式)');
+      print('$TAG: Đã gửi tin nhắn bắt đầu nghe (chế độ cuộc gọi thoại)');
     } catch (e) {
-      print('$TAG: 开始监听失败: $e');
-      throw Exception('开始语音输入失败: $e');
+      print('$TAG: Bắt đầu nghe thất bại: $e');
+      throw Exception('Bắt đầu đầu vào thoại thất bại: $e');
     }
   }
 
-  /// 停止听说（语音通话模式）
+  /// Dừng nghe nói (chế độ cuộc gọi thoại)
   Future<void> stopListeningCall() async {
     try {
-      // 取消音频流订阅
+      // Hủy đăng ký luồng âm thanh
       await _audioStreamSubscription?.cancel();
       _audioStreamSubscription = null;
 
-      // 停止录音
+      // Dừng ghi âm
       await AudioUtil.stopRecording();
 
-      // 发送停止监听命令
+      // Gửi lệnh dừng nghe
       if (_sessionId != null && _webSocketManager != null) {
         final message = {
           'session_id': _sessionId,
@@ -488,35 +509,35 @@ class XiaozhiService {
           'mode': 'auto',
         };
         _webSocketManager?.sendMessage(jsonEncode(message));
-        print('$TAG: 已发送停止监听消息 (语音通话模式)');
+        print('$TAG: Đã gửi tin nhắn dừng nghe (chế độ cuộc gọi thoại)');
       }
     } catch (e) {
-      print('$TAG: 停止监听失败: $e');
+      print('$TAG: Dừng nghe thất bại: $e');
     }
   }
 
-  /// 取消发送（上滑取消）
+  /// Hủy gửi (vuốt lên để hủy)
   Future<void> abortListening() async {
     try {
-      // 取消音频流订阅
+      // Hủy đăng ký luồng âm thanh
       await _audioStreamSubscription?.cancel();
       _audioStreamSubscription = null;
 
-      // 停止录音
+      // Dừng ghi âm
       await AudioUtil.stopRecording();
 
-      // 发送中止命令
+      // Gửi lệnh hủy
       if (_sessionId != null && _webSocketManager != null) {
         final message = {'session_id': _sessionId, 'type': 'abort'};
         _webSocketManager?.sendMessage(jsonEncode(message));
-        print('$TAG: 已发送中止消息');
+        print('$TAG: Đã gửi tin nhắn hủy');
       }
     } catch (e) {
-      print('$TAG: 中止监听失败: $e');
+      print('$TAG: Hủy nghe thất bại: $e');
     }
   }
 
-  /// 切换静音状态
+  /// Chuyển đổi trạng thái im lặng
   void toggleMute() {
     _isMuted = !_isMuted;
 
@@ -527,11 +548,11 @@ class XiaozhiService {
 
       _webSocketManager!.sendMessage(jsonEncode(request));
     } catch (e) {
-      print('$TAG: 切换静音状态失败: $e');
+      print('$TAG: Chuyển đổi trạng thái im lặng thất bại: $e');
     }
   }
 
-  /// 处理WebSocket事件
+  /// Xử lý sự kiện WebSocket
   void _onWebSocketEvent(XiaozhiEvent event) {
     switch (event.type) {
       case XiaozhiEventType.connected:
@@ -553,7 +574,7 @@ class XiaozhiService {
         break;
 
       case XiaozhiEventType.binaryMessage:
-        // 处理二进制音频数据 - 简化直接播放
+        // Xử lý dữ liệu âm thanh nhị phân - đơn giản hóa phát trực tiếp
         final audioData = event.data as List<int>;
         AudioUtil.playOpusData(Uint8List.fromList(audioData));
         break;
@@ -566,7 +587,7 @@ class XiaozhiService {
     }
   }
 
-  /// 处理WebSocket消息
+  /// Xử lý tin nhắn WebSocket
   void _handleWebSocketMessage(dynamic message) {
     try {
       if (message is String) {
@@ -575,53 +596,53 @@ class XiaozhiService {
         AudioUtil.playOpusData(Uint8List.fromList(message));
       }
     } catch (e) {
-      print('$TAG: 处理消息失败: $e');
+      print('$TAG: Xử lý tin nhắn thất bại: $e');
     }
   }
 
-  /// 处理文本消息
+  /// Xử lý tin nhắn văn bản
   void _handleTextMessage(String message) {
-    print('$TAG: 收到文本消息: $message');
+    print('$TAG: Nhận tin nhắn văn bản: $message');
     try {
       final Map<String, dynamic> jsonData = json.decode(message);
       final String type = jsonData['type'] ?? '';
 
-      // 确保首先调用消息监听器
+      // Đảm bảo gọi trình nghe tin nhắn trước tiên
       if (_messageListener != null) {
         _messageListener!(jsonData);
       }
 
-      // 更新会话ID（服务器在hello消息中会提供新的会话ID）
+      // Cập nhật ID phiên (máy chủ sẽ cung cấp ID phiên mới trong tin nhắn hello)
       if (jsonData['session_id'] != null) {
         _sessionId = jsonData['session_id'];
-        print('$TAG: 更新会话ID: $_sessionId');
+        print('$TAG: Cập nhật ID phiên: $_sessionId');
       }
 
-      // 根据消息类型分发事件
+      // Phân phối sự kiện theo loại tin nhắn
       switch (type) {
         case 'hello':
-          // 处理服务器的hello响应
+          // Xử lý phản hồi hello của máy chủ
           if (_isVoiceCallActive && !_hasStartedCall) {
             _hasStartedCall = true;
-            // 发送自动说话模式消息
+            // Gửi tin nhắn chế độ nói tự động
             startSpeaking();
           }
           break;
 
         case 'start':
-          // 收到start响应后，如果是语音通话模式，开始录音
+          // Sau khi nhận phản hồi start, nếu ở chế độ cuộc gọi thoại, bắt đầu ghi âm
           if (_isVoiceCallActive) {
             _sendListenMessage();
           }
           break;
 
         case 'tts':
-          // TTS消息处理
+          // Xử lý tin nhắn TTS
           final String state = jsonData['state'] ?? '';
           final String text = jsonData['text'] ?? '';
 
           if (state == 'sentence_start' && text.isNotEmpty) {
-            print('$TAG: 收到TTS句子: $text');
+            print('$TAG: Nhận câu TTS: $text');
             _dispatchEvent(
               XiaozhiServiceEvent(XiaozhiServiceEventType.textMessage, text),
             );
@@ -629,11 +650,11 @@ class XiaozhiService {
           break;
 
         case 'stt':
-          // 处理语音识别结果
+          // Xử lý kết quả nhận dạng giọng nói
           final String text = jsonData['text'] ?? '';
           if (text.isNotEmpty) {
-            print('$TAG: 收到语音识别结果: $text');
-            // 先分发用户消息事件
+            print('$TAG: Nhận kết quả nhận dạng giọng nói: $text');
+            // Phân phối sự kiện tin nhắn người dùng trước
             _dispatchEvent(
               XiaozhiServiceEvent(XiaozhiServiceEventType.userMessage, text),
             );
@@ -641,32 +662,34 @@ class XiaozhiService {
           break;
 
         case 'emotion':
-          // 处理表情消息
+          // Xử lý tin nhắn biểu cảm
           final String emotion = jsonData['emotion'] ?? '';
           if (emotion.isNotEmpty) {
-            print('$TAG: 收到表情消息: $emotion');
+            print('$TAG: Nhận tin nhắn biểu cảm: $emotion');
             _dispatchEvent(
               XiaozhiServiceEvent(
                 XiaozhiServiceEventType.textMessage,
-                '表情: $emotion',
+                'Biểu cảm: $emotion',
               ),
             );
           }
           break;
 
         default:
-          // 对于其他类型的消息，直接忽略
-          print('$TAG: 收到未知类型消息: $type, 原始数据: $message');
+          // Đối với các loại tin nhắn khác, bỏ qua trực tiếp
+          print(
+            '$TAG: Nhận tin nhắn loại không biết: $type, dữ liệu gốc: $message',
+          );
       }
     } catch (e) {
-      print('$TAG: 解析消息失败: $e, 原始消息: $message');
+      print('$TAG: Phân tích tin nhắn thất bại: $e, tin nhắn gốc: $message');
     }
   }
 
-  /// 开始通话
+  /// Bắt đầu cuộc gọi
   void _startCall() {
     try {
-      // 发送开始通话消息
+      // Gửi tin nhắn bắt đầu cuộc gọi
       final startMessage = {
         'type': 'start',
         'mode': 'auto',
@@ -678,63 +701,63 @@ class XiaozhiService {
         },
       };
       _webSocketManager?.sendMessage(jsonEncode(startMessage));
-      print('$TAG: 已发送开始通话消息');
+      print('$TAG: Đã gửi tin nhắn bắt đầu cuộc gọi');
     } catch (e) {
-      print('$TAG: 开始通话失败: $e');
+      print('$TAG: Bắt đầu cuộc gọi thất bại: $e');
     }
   }
 
-  /// 中断音频播放
+  /// Ngắt âm thanh phát
   Future<void> stopPlayback() async {
     try {
-      print('$TAG: 正在停止音频播放');
+      print('$TAG: Đang dừng phát âm thanh');
 
-      // 简单直接地停止播放
+      // Dừng phát đơn giản và trực tiếp
       await AudioUtil.stopPlaying();
 
-      print('$TAG: 音频播放已停止');
+      print('$TAG: Phát âm thanh đã dừng');
     } catch (e) {
-      print('$TAG: 停止音频播放失败: $e');
+      print('$TAG: Dừng phát âm thanh thất bại: $e');
     }
   }
 
-  /// 判断是否已连接
+  /// Kiểm tra xem đã kết nối chưa
   bool get isConnected =>
       _isConnected &&
       _webSocketManager != null &&
       _webSocketManager!.isConnected;
 
-  /// 判断是否静音
+  /// Kiểm tra xem có bị tắt tiếng không
   bool get isMuted => _isMuted;
 
-  /// 判断语音通话是否活跃
+  /// Kiểm tra xem cuộc gọi thoại có hoạt động không
   bool get isVoiceCallActive => _isVoiceCallActive;
 
-  /// 释放资源
+  /// Giải phóng tài nguyên
   Future<void> dispose() async {
     await disconnect();
     await AudioUtil.dispose();
     _listeners.clear();
-    print('$TAG: 资源已释放');
+    print('$TAG: Tài nguyên đã được giải phóng');
   }
 
-  /// 开始监听（按住说话模式）
+  /// Bắt đầu nghe (chế độ giữ để nói)
   Future<void> startListening({String mode = 'manual'}) async {
     if (!_isConnected || _webSocketManager == null) {
       await connect();
     }
 
     try {
-      // 确保已经有会话ID
+      // Đảm bảo đã có ID phiên
       if (_sessionId == null) {
-        print('$TAG: 没有会话ID，无法开始监听');
+        print('$TAG: Không có ID phiên, không thể bắt đầu nghe');
         return;
       }
 
-      // 开始录音
+      // Bắt đầu ghi âm
       await AudioUtil.startRecording();
 
-      // 发送开始监听命令
+      // Gửi lệnh bắt đầu nghe
       final message = {
         'session_id': _sessionId,
         'type': 'listen',
@@ -742,30 +765,30 @@ class XiaozhiService {
         'mode': mode,
       };
       _webSocketManager?.sendMessage(jsonEncode(message));
-      print('$TAG: 已发送开始监听消息 (按住说话)');
+      print('$TAG: Đã gửi tin nhắn bắt đầu nghe (giữ để nói)');
 
-      // 设置音频流订阅
+      // Thiết lập đăng ký luồng âm thanh
       _audioStreamSubscription = AudioUtil.audioStream.listen((opusData) {
-        // 发送音频数据
+        // Gửi dữ liệu âm thanh
         _webSocketManager?.sendBinaryMessage(opusData);
       });
     } catch (e) {
-      print('$TAG: 开始监听失败: $e');
-      throw Exception('开始语音输入失败: $e');
+      print('$TAG: Bắt đầu nghe thất bại: $e');
+      throw Exception('Bắt đầu đầu vào thoại thất bại: $e');
     }
   }
 
-  /// 停止监听（按住说话模式）
+  /// Dừng nghe (chế độ giữ để nói)
   Future<void> stopListening() async {
     try {
-      // 取消音频流订阅
+      // Hủy đăng ký luồng âm thanh
       await _audioStreamSubscription?.cancel();
       _audioStreamSubscription = null;
 
-      // 停止录音
+      // Dừng ghi âm
       await AudioUtil.stopRecording();
 
-      // 发送停止监听命令
+      // Gửi lệnh dừng nghe
       if (_sessionId != null && _webSocketManager != null) {
         final message = {
           'session_id': _sessionId,
@@ -773,14 +796,14 @@ class XiaozhiService {
           'state': 'stop',
         };
         _webSocketManager?.sendMessage(jsonEncode(message));
-        print('$TAG: 已发送停止监听消息');
+        print('$TAG: Đã gửi tin nhắn dừng nghe');
       }
     } catch (e) {
-      print('$TAG: 停止监听失败: $e');
+      print('$TAG: Dừng nghe thất bại: $e');
     }
   }
 
-  /// 发送中断消息
+  /// Gửi tin nhắn ngắt
   Future<void> sendAbortMessage() async {
     try {
       if (_webSocketManager != null && _isConnected && _sessionId != null) {
@@ -790,9 +813,9 @@ class XiaozhiService {
           'reason': 'wake_word_detected',
         };
         _webSocketManager?.sendMessage(jsonEncode(abortMessage));
-        print('$TAG: 发送中断消息: $abortMessage');
+        print('$TAG: Gửi tin nhắn ngắt: $abortMessage');
 
-        // 如果当前正在录音，短暂停顿后继续
+        // Nếu đang ghi âm, tạm dừng ngắn sau đó tiếp tục
         if (_isSpeaking) {
           await stopListeningCall();
           await Future.delayed(const Duration(milliseconds: 500));
@@ -800,10 +823,10 @@ class XiaozhiService {
         }
       }
     } catch (e) {
-      print('$TAG: 发送中断消息失败: $e');
+      print('$TAG: Gửi tin nhắn ngắt thất bại: $e');
     }
   }
 
-  /// 判断是否正在说话
+  /// Kiểm tra xem có đang nói không
   bool get _isSpeaking => _audioStreamSubscription != null;
 }
