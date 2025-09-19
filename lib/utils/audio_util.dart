@@ -130,6 +130,12 @@ class AudioUtil {
 
   /// Khởi tạo trình phát âm thanh
   static Future<void> initPlayer() async {
+    if (Platform.isWindows) {
+      print('$TAG: Không hỗ trợ phát âm thanh trên Windows. Bỏ qua khởi tạo.');
+      _isPlayerInitialized = true; // Đánh dấu đã "khởi tạo" để tránh gọi lại
+      return;
+    }
+
     // Đảm bảo bất kỳ trình phát cũ nào được giải phóng
     await stopPlaying();
 
@@ -151,6 +157,13 @@ class AudioUtil {
 
   /// Phát dữ liệu âm thanh Opus
   static Future<void> playOpusData(Uint8List opusData) async {
+    if (Platform.isWindows) {
+      print(
+        '$TAG: Không hỗ trợ phát âm thanh trên Windows. Bỏ qua phát dữ liệu Opus.',
+      );
+      return;
+    }
+
     try {
       // Nếu trình phát chưa được khởi tạo, khởi tạo trước
       if (!_isPlayerInitialized || _pcmPlayer == null) {
