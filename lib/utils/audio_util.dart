@@ -22,6 +22,7 @@ class AudioUtil {
   static ja.AudioPlayer? _player;
   static bool _isRecorderInitialized = false;
   static bool _isPlayerInitialized = false;
+  static bool _isPlayerPrepared = false;
   static bool _isRecording = false;
   static bool _isPlaying = false;
   static final StreamController<Uint8List> _audioStreamController =
@@ -209,8 +210,31 @@ class AudioUtil {
     }
   }
 
+  /// Prepare player cho lần play đầu tiên bằng cách init rồi stop để reset trạng thái
+  static Future<void> preparePlayerForFirstPlay() async {
+    if (Platform.isWindows || _isPlayerPrepared) {
+      return;
+    }
+
+    if (_isPlayerInitialized || _pcmPlayer != null) {
+      await stopPlaying();
+    }
+
+    try {
+      print('$TAG: Prepare player cho lần play đầu tiên');
+      await initPlayer();
+      await stopPlaying();  // Reset để lần play thực tế init mới, sạch sẽ
+      _isPlayerPrepared = true;
+      print('$TAG: Player đã được prepare (reset) cho lần play đầu tiên');
+    } catch (e) {
+      print('$TAG: Prepare player thất bại: $e');
+      _isPlayerPrepared = false;
+    }
+  }
+
   /// Giải phóng tài nguyên
   static Future<void> dispose() async {
+    _isPlayerPrepared = false;  // Reset flag khi dispose
     _audioStreamController.close();
     print('$TAG: Tài nguyên đã được giải phóng');
   }

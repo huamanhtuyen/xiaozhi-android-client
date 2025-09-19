@@ -84,21 +84,21 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
 
 SPEC CHECKSUMS:
-  audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
-  audio_streamer: 2e472b9f81cec5e381c4cf7667afa3055dcb45a4
-  device_info_plus: 71ffc6ab7634ade6267c7a93088ed7e4f74e5896
+  audio_session: 19e9480dbdd4e5f6c4543826b2e8b0e4ab6145fe
+  audio_streamer: af49e73eb66f71c4eeabb4bbcb05f122d03a6709
+  device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_blue_plus_darwin: 09444a26fb6bdef523e55b68fc1c59af5a877ea6
-  flutter_pcm_player: ecac44cb13707ee54eb4e31252717e36acb29272
-  flutter_sound: 52bc351d9035fede9085cbf99c296c62897ceadd
+  flutter_blue_plus_darwin: 3ea4ec9133b377febcc8a70b28cd2d2dc9242bd9
+  flutter_pcm_player: 49284f275b09eee4150b941c41cd6f9fa40e6df0
+  flutter_sound: 39446c16b0111b4926ff261c5c4d601bc1d5d661
   flutter_sound_core: 938c91404747d79bf14a0c85b90a5d95ed7ed5c4
-  image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
-  just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
-  opus_flutter_ios: 6c80747e297077787910a39146d698a15a37c82a
-  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
-  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
-  record_darwin: fb1f375f1d9603714f55b8708a903bbb91ffdb0a
-  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
+  just_audio: a42c63806f16995daf5b219ae1d679deb76e6a79
+  opus_flutter_ios: 3df5f9d5bedf0818e7e2c9b94b7baf8d837101c4
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  record_darwin: 3b1a8e7d5c0cbf45ad6165b4d83a6ca643d929c3
+  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
 
 PODFILE CHECKSUM: baad53a87ac96e6e789f3fa7a615a8354ef9f76d
 

@@ -553,7 +553,7 @@ class XiaozhiService {
   }
 
   /// Xử lý sự kiện WebSocket
-  void _onWebSocketEvent(XiaozhiEvent event) {
+  Future<void> _onWebSocketEvent(XiaozhiEvent event) async {
     switch (event.type) {
       case XiaozhiEventType.connected:
         _isConnected = true;
@@ -570,13 +570,13 @@ class XiaozhiService {
         break;
 
       case XiaozhiEventType.message:
-        _handleTextMessage(event.data as String);
+        await _handleTextMessage(event.data as String);
         break;
 
       case XiaozhiEventType.binaryMessage:
         // Xử lý dữ liệu âm thanh nhị phân - đơn giản hóa phát trực tiếp
         final audioData = event.data as List<int>;
-        AudioUtil.playOpusData(Uint8List.fromList(audioData));
+        await AudioUtil.playOpusData(Uint8List.fromList(audioData));
         break;
 
       case XiaozhiEventType.error:
@@ -588,10 +588,10 @@ class XiaozhiService {
   }
 
   /// Xử lý tin nhắn WebSocket
-  void _handleWebSocketMessage(dynamic message) {
+  void _handleWebSocketMessage(dynamic message) async {
     try {
       if (message is String) {
-        _handleTextMessage(message);
+        await _handleTextMessage(message);
       } else if (message is List<int>) {
         AudioUtil.playOpusData(Uint8List.fromList(message));
       }
@@ -601,7 +601,7 @@ class XiaozhiService {
   }
 
   /// Xử lý tin nhắn văn bản
-  void _handleTextMessage(String message) {
+  Future<void> _handleTextMessage(String message) async {
     print('$TAG: Nhận tin nhắn văn bản: $message');
     try {
       final Map<String, dynamic> jsonData = json.decode(message);
@@ -627,6 +627,9 @@ class XiaozhiService {
             // Gửi tin nhắn chế độ nói tự động
             startSpeaking();
           }
+
+          // Prepare audio player cho lần play đầu tiên để tránh tiếng lộp bộp
+          await AudioUtil.preparePlayerForFirstPlay();
           break;
 
         case 'start':
