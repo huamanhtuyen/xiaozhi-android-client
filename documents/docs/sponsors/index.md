@@ -1,6 +1,6 @@
 ---
-title: 赞助支持
-description: 感谢所有赞助者的支持
+title: Hỗ trợ tài trợ
+description: Cảm ơn sự hỗ trợ của tất cả nhà tài trợ
 sidebar: false
 outline: deep
 ---
@@ -11,43 +11,41 @@ import SponsorsList from './SponsorsList.vue'
 
 <div class="sponsors-page">
 
-# 赞助支持
+# Hỗ trợ tài trợ
 
 <div class="header-content">
-  <h2>感谢所有赞助者的支持 ❤️</h2>
+  <h2>Cảm ơn sự hỗ trợ của tất cả nhà tài trợ ❤️</h2>
 </div>
 
 <div class="sponsors-section">
 
-
 <SponsorsList />
 
-## 成为赞助者
+## Trở thành nhà tài trợ
 
-请通过以下方式进行赞助：
-您的赞助将用于：
-- 支持设备兼容性测试
-- 新功能开发和维护
-
+Vui lòng tài trợ qua các cách sau:
+Sự tài trợ của bạn sẽ được sử dụng cho:
+- Hỗ trợ kiểm tra tương thích thiết bị
+- Phát triển và bảo trì tính năng mới
 
 <div class="payment-container">
   <div class="payment-method">
-    <h4>微信支付</h4>
+    <h4>Thanh toán WeChat</h4>
     <div class="qr-code">
-      <img src="./images/zsm.jpg" alt="微信收款码">
+      <img src="./images/zsm.jpg" alt="Mã thu WeChat">
     </div>
   </div>
 </div>
 
-### 设备兼容性支持
+### Hỗ trợ tương thích thiết bị
 
-您可以通过以下方式支持设备兼容性：
-- 在赞助备注中说明您的设备型号，我会优先支持这些设备
-- 直接赞助/捐赠硬件设备，帮助我进行开发和适配测试
-- 提供设备的详细参数和使用场景，便于我更好地进行开发
+Bạn có thể hỗ trợ tương thích thiết bị qua các cách sau:
+- Trong ghi chú tài trợ, chỉ rõ model thiết bị của bạn, tôi sẽ ưu tiên hỗ trợ những thiết bị này
+- Trực tiếp tài trợ/quyên góp thiết bị phần cứng, giúp tôi phát triển và kiểm tra tương thích
+- Cung cấp thông số chi tiết và kịch bản sử dụng của thiết bị, để tôi phát triển tốt hơn
 
-::: tip 联系方式
-硬件赞助请通过GitHub主页的邮箱联系我，以便协商寄送方式和地址
+::: tip Thông tin liên hệ
+Đối với tài trợ phần cứng, vui lòng liên hệ qua email trên trang GitHub của tôi để thảo luận cách gửi và địa chỉ
 :::
 
 </div>
@@ -129,4 +127,4 @@ import SponsorsList from './SponsorsList.vue'
     height: 180px;
   }
 }
-</style> 
+</style>

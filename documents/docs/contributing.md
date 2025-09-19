@@ -1,404 +1,404 @@
 ---
-title: 贡献指南
-description: 如何为 android-xiaozhi 项目贡献代码
+title: Hướng Dẫn Đóng Góp
+description: Cách đóng góp mã nguồn cho dự án android-xiaozhi
 sidebar: false
 outline: deep
 ---
 
 <div class="contributing-page">
 
-# 贡献指南
+# Hướng Dẫn Đóng Góp
 
 <div class="header-content">
-  <h2>如何为 android-xiaozhi 项目贡献代码 🚀</h2>
+  <h2>Cách đóng góp mã nguồn cho dự án android-xiaozhi 🚀</h2>
 </div>
 
-## 前言
+## Lời Mở Đầu
 
-感谢您对 android-xiaozhi 项目感兴趣！我们非常欢迎社区成员参与贡献，无论是修复错误、改进文档还是添加新功能。本指南将帮助您了解如何向项目提交贡献。
+Cảm ơn bạn đã quan tâm đến dự án android-xiaozhi! Chúng tôi rất hoan nghênh các thành viên cộng đồng tham gia đóng góp, dù là sửa lỗi, cải thiện tài liệu hay thêm tính năng mới. Hướng dẫn này sẽ giúp bạn hiểu cách đóng góp cho dự án.
 
-## 开发环境准备
+## Chuẩn Bị Môi Trường Phát Triển
 
-### 基本要求
+### Yêu Cầu Cơ Bản
 
-- Flutter SDK 3.7.0 或更高版本
-- Dart SDK 3.7.0 或更高版本
-- Git 版本控制系统
-- Android Studio 或 Visual Studio Code (带 Flutter 插件)
-- Android SDK (用于 Android 开发)
-- Xcode (用于 iOS 开发，仅 macOS)
+- Flutter SDK 3.7.0 hoặc cao hơn
+- Dart SDK 3.7.0 hoặc cao hơn
+- Hệ thống kiểm soát phiên bản Git
+- Android Studio hoặc Visual Studio Code (với plugin Flutter)
+- Android SDK (dùng cho phát triển Android)
+- Xcode (dùng cho phát triển iOS, chỉ trên macOS)
 
-### 获取源代码
+### Lấy Mã Nguồn
 
-1. 首先，在 GitHub 上 Fork 本项目到您自己的账号
-   - 访问 [android-xiaozhi 项目页面](https://github.com/TOM88812/xiaozhi-android-client)
-   - 点击右上角的"Fork"按钮
-   - 等待 Fork 完成，您将被重定向到您的仓库副本
+1. Trước tiên, Fork dự án trên GitHub vào tài khoản của bạn
+   - Truy cập [trang dự án android-xiaozhi](https://github.com/TOM88812/xiaozhi-android-client)
+   - Nhấp vào nút "Fork" ở góc trên bên phải
+   - Chờ Fork hoàn tất, bạn sẽ được chuyển hướng đến bản sao kho lưu trữ của mình
 
-2. 克隆您 fork 的仓库到本地：
+2. Clone kho lưu trữ đã fork của bạn về máy cục bộ:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/xiaozhi-android.git
+git clone https://github.com/YOUR_USERNAME/xiaozhi-android-client.git
 cd xiaozhi-android-client
 ```
 
-3. 添加上游仓库作为远程源：
+3. Thêm kho lưu trữ upstream làm nguồn từ xa:
 
 ```bash
 git remote add upstream https://github.com/TOM88812/xiaozhi-android-client.git
 ```
 
-你可以使用 `git remote -v` 命令确认远程仓库已正确配置：
+Bạn có thể sử dụng lệnh `git remote -v` để xác nhận kho lưu trữ từ xa đã được cấu hình đúng:
 
 ```bash
 git remote -v
-# 应显示：
+# Nên hiển thị:
 # origin    https://github.com/YOUR_USERNAME/xiaozhi-android-client.git (fetch)
 # origin    https://github.com/YOUR_USERNAME/xiaozhi-android-client.git (push)
 # upstream  https://github.com/TOM88812/xiaozhi-android-client.git (fetch)
 # upstream  https://github.com/TOM88812/xiaozhi-android-client.git (push)
 ```
 
-### 安装开发依赖
+### Cài Đặt Phụ Thuộc Phát Triển
 
 ```bash
-# 安装Flutter依赖
+# Cài đặt phụ thuộc Flutter
 flutter pub get
 ```
 
-## 开发流程
+## Quy Trình Phát Triển
 
-### 与主仓库保持同步
+### Đồng Bộ Với Kho Lưu Trữ Chính
 
-在开始工作之前，确保您的本地仓库与主项目保持同步是非常重要的。以下是同步本地仓库的步骤：
+Trước khi bắt đầu làm việc, việc đảm bảo kho lưu trữ cục bộ của bạn đồng bộ với dự án chính là rất quan trọng. Dưới đây là các bước đồng bộ kho lưu trữ cục bộ:
 
-1. 切换到您的主分支（`main`）：
+1. Chuyển sang nhánh chính (`main`):
 
 ```bash
 git checkout main
 ```
 
-2. 拉取上游仓库的最新更改：
+2. Kéo các thay đổi mới nhất từ kho lưu trữ upstream:
 
 ```bash
 git fetch upstream
 ```
 
-3. 将上游主分支的更改合并到您的本地主分支：
+3. Hợp nhất các thay đổi từ nhánh chính upstream vào nhánh chính cục bộ của bạn:
 
 ```bash
 git merge upstream/main
 ```
 
-4. 将更新后的本地主分支推送到您的 GitHub 仓库：
+4. Đẩy nhánh chính cục bộ đã cập nhật lên kho lưu trữ GitHub của bạn:
 
 ```bash
 git push origin main
 ```
 
-### 创建分支
+### Tạo Nhánh
 
-在开始任何工作之前，请确保从最新的上游主分支创建新的分支：
+Trước khi bắt đầu bất kỳ công việc nào, hãy đảm bảo tạo nhánh mới từ nhánh chính upstream mới nhất:
 
 ```bash
-# 获取最新的上游代码（如上节所述）
+# Lấy mã upstream mới nhất (như phần trên)
 git fetch upstream
 git checkout -b feature/your-feature-name upstream/main
 ```
 
-为分支命名时，可以遵循以下约定：
-- `feature/xxx`：新功能开发
-- `fix/xxx`：修复 bug
-- `docs/xxx`：文档更新
-- `test/xxx`：测试相关工作
-- `refactor/xxx`：代码重构
+Khi đặt tên nhánh, bạn có thể tuân theo các quy ước sau:
+- `feature/xxx`: Phát triển tính năng mới
+- `fix/xxx`: Sửa lỗi
+- `docs/xxx`: Cập nhật tài liệu
+- `test/xxx`: Công việc liên quan đến kiểm thử
+- `refactor/xxx`: Tái cấu trúc mã
 
-### 编码规范
+### Quy Tắc Mã Hóa
 
-我们使用 Flutter 官方推荐的代码风格指南。在提交代码前，请确保您的代码符合以下要求：
+Chúng tôi sử dụng hướng dẫn phong cách mã được khuyến nghị chính thức của Flutter. Trước khi gửi mã, hãy đảm bảo mã của bạn tuân thủ các yêu cầu sau:
 
-- 使用 2 个空格进行缩进
-- 行长度不超过 120 个字符
-- 使用有意义的变量和函数名称
-- 为公共 API 添加文档注释
-- 使用 Dart 类型系统
+- Sử dụng 2 khoảng trắng để thụt lề
+- Độ dài dòng không vượt quá 120 ký tự
+- Sử dụng tên biến và hàm có ý nghĩa
+- Thêm chú thích tài liệu cho API công khai
+- Sử dụng hệ thống kiểu Dart
 
-我们推荐使用 Flutter 的静态代码分析工具来帮助您遵循编码规范：
+Chúng tôi khuyến nghị sử dụng công cụ phân tích mã tĩnh của Flutter để giúp bạn tuân thủ quy tắc mã hóa:
 
 ```bash
-# 使用 dart analyze 检查代码
+# Sử dụng dart analyze để kiểm tra mã
 flutter analyze
 ```
 
-### 测试
+### Kiểm Thử
 
-在提交之前，请确保所有测试都能通过：
+Trước khi gửi, hãy đảm bảo tất cả các kiểm thử đều vượt qua:
 
 ```bash
 flutter test
 ```
 
-## 提交变更
+## Gửi Thay Đổi
 
-### 提交前的检查清单
+### Danh Sách Kiểm Tra Trước Khi Gửi
 
-在提交您的代码之前，请确保完成以下检查：
+Trước khi gửi mã của bạn, hãy đảm bảo hoàn thành các kiểm tra sau:
 
-1. 代码是否符合 Flutter 编码规范
-2. 是否添加了必要的测试用例
-3. 所有测试是否通过
-4. 是否添加了适当的文档
-5. 是否解决了您计划解决的问题
-6. 是否与最新的上游代码保持同步
+1. Mã có tuân thủ quy tắc mã hóa Flutter không
+2. Có thêm các trường hợp kiểm thử cần thiết không
+3. Tất cả các kiểm thử có vượt qua không
+4. Có thêm tài liệu phù hợp không
+5. Có giải quyết vấn đề bạn dự định không
+6. Có đồng bộ với mã upstream mới nhất không
 
-### 提交变更
+### Gửi Thay Đổi
 
-在开发过程中，养成小批量、频繁提交的习惯。这样可以使您的更改更容易跟踪和理解：
+Trong quá trình phát triển, hãy hình thành thói quen gửi nhỏ lẻ, thường xuyên. Điều này làm cho các thay đổi của bạn dễ theo dõi và hiểu hơn:
 
 ```bash
-# 查看更改的文件
+# Xem các file đã thay đổi
 git status
 
-# 暂存更改
+# Tạm lưu thay đổi
 git add lib/feature.dart test/feature_test.dart
 
-# 提交更改
+# Gửi thay đổi
 git commit -m "feat: add new feature X"
 ```
 
-### 解决冲突
+### Giải Quyết Xung Đột
 
-如果您在尝试合并上游更改时遇到冲突，请按照以下步骤解决：
+Nếu bạn gặp xung đột khi cố gắng hợp nhất thay đổi upstream, hãy giải quyết theo các bước sau:
 
-1. 首先了解冲突的位置：
+1. Trước tiên, hiểu vị trí xung đột:
 
 ```bash
 git status
 ```
 
-2. 打开冲突文件，您会看到类似以下标记：
+2. Mở file xung đột, bạn sẽ thấy các dấu hiệu tương tự như sau:
 
 ```
-上游代码
+Mã upstream
 ```
 
-3. 修改文件以解决冲突，删除冲突标记
-4. 解决完所有冲突后，暂存并提交：
+3. Sửa đổi file để giải quyết xung đột, xóa các dấu hiệu xung đột
+4. Sau khi giải quyết tất cả xung đột, tạm lưu và gửi:
 
 ```bash
 git add .
 git commit -m "fix: resolve merge conflicts"
 ```
 
-### 提交规范
+### Quy Tắc Gửi
 
-我们使用[约定式提交](https://www.conventionalcommits.org/zh-hans/)规范来格式化 Git 提交消息。提交消息应该遵循以下格式：
-
-```
-<类型>[可选 作用域]: <描述>
-
-[可选 正文]
-
-[可选 脚注]
-```
-
-常用的提交类型包括：
-- `feat`：新功能
-- `fix`：错误修复
-- `docs`：文档更改
-- `style`：不影响代码含义的变更（如空格、格式化等）
-- `refactor`：既不修复错误也不添加功能的代码重构
-- `perf`：提高性能的代码更改
-- `test`：添加或修正测试
-- `chore`：对构建过程或辅助工具和库的更改
-
-例如：
+Chúng tôi sử dụng [quy ước gửi](https://www.conventionalcommits.org/zh-hans/) để định dạng thông điệp Git commit. Thông điệp gửi nên tuân theo định dạng sau:
 
 ```
-feat(tts): 添加新的语音合成引擎支持
+<loại>[phạm vi tùy chọn]: <mô tả>
 
-添加对百度语音合成API的支持，包括以下功能：
-- 支持多种音色选择
-- 支持语速和音量调节
-- 支持中英文混合合成
+[thân tùy chọn]
 
-修复 #123
+[chú thích tùy chọn]
 ```
 
-### 推送更改
+Các loại gửi phổ biến bao gồm:
+- `feat`: Tính năng mới
+- `fix`: Sửa lỗi
+- `docs`: Thay đổi tài liệu
+- `style`: Thay đổi không ảnh hưởng đến ý nghĩa mã (như khoảng trắng, định dạng, v.v.)
+- `refactor`: Tái cấu trúc mã không sửa lỗi cũng không thêm tính năng
+- `perf`: Thay đổi mã cải thiện hiệu suất
+- `test`: Thêm hoặc sửa kiểm thử
+- `chore`: Thay đổi đối với quá trình xây dựng hoặc công cụ hỗ trợ và thư viện
 
-完成代码更改后，将您的分支推送到您的 GitHub 仓库：
+Ví dụ:
+
+```
+feat(tts): Thêm hỗ trợ engine tổng hợp giọng nói mới
+
+Thêm hỗ trợ API tổng hợp giọng nói Baidu, bao gồm các chức năng sau:
+- Hỗ trợ chọn nhiều giọng nói
+- Hỗ trợ điều chỉnh tốc độ và âm lượng
+- Hỗ trợ tổng hợp tiếng Trung và tiếng Anh hỗn hợp
+
+Sửa #123
+```
+
+### Đẩy Thay Đổi
+
+Sau khi hoàn thành thay đổi mã, đẩy nhánh của bạn lên kho lưu trữ GitHub:
 
 ```bash
 git push origin feature/your-feature-name
 ```
 
-如果您已经创建了 Pull Request，并且需要更新它，只需再次推送到同一分支即可：
+Nếu bạn đã tạo Pull Request và cần cập nhật nó, chỉ cần đẩy lại lên cùng nhánh:
 
 ```bash
-# 在进行更多更改后
+# Sau khi thực hiện thêm thay đổi
 git add .
 git commit -m "refactor: improve code based on feedback"
 git push origin feature/your-feature-name
 ```
 
-### 创建 Pull Request 前同步最新代码
+### Đồng Bộ Mã Mới Nhất Trước Khi Tạo Pull Request
 
-在创建 Pull Request 前，建议再次与上游仓库同步，以避免潜在的冲突：
+Trước khi tạo Pull Request, khuyến nghị đồng bộ lại với kho lưu trữ upstream để tránh xung đột tiềm ẩn:
 
 ```bash
-# 获取上游最新代码
+# Lấy mã upstream mới nhất
 git fetch upstream
 
-# 将上游最新代码变基到您的特性分支
+# Rebase mã upstream mới nhất lên nhánh tính năng của bạn
 git rebase upstream/main
 
-# 如果出现冲突，解决冲突并继续变基
+# Nếu có xung đột, giải quyết xung đột và tiếp tục rebase
 git add .
 git rebase --continue
 
-# 强制推送更新后的分支到您的仓库
+# Đẩy cưỡng chế nhánh đã cập nhật lên kho lưu trữ của bạn
 git push --force-with-lease origin feature/your-feature-name
 ```
 
-注意：使用 `--force-with-lease` 比直接使用 `--force` 更安全，它可以防止覆盖他人推送的更改。
+Lưu ý: Sử dụng `--force-with-lease` an toàn hơn `--force`, nó có thể ngăn chặn việc ghi đè thay đổi của người khác.
 
-### 创建 Pull Request
+### Tạo Pull Request
 
-当您完成功能开发或问题修复后，请按照以下步骤创建 Pull Request：
+Khi bạn hoàn thành phát triển tính năng hoặc sửa lỗi, hãy tạo Pull Request theo các bước sau:
 
-1. 将您的更改推送到 GitHub：
+1. Đẩy thay đổi của bạn lên GitHub:
 
 ```bash
 git push origin feature/your-feature-name
 ```
 
-2. 访问 GitHub 上您 fork 的仓库页面，点击 "Compare & pull request" 按钮
+2. Truy cập trang kho lưu trữ fork của bạn trên GitHub, nhấp vào nút "Compare & pull request"
 
-3. 填写 Pull Request 表单：
-   - 使用清晰的标题，遵循提交消息格式
-   - 在描述中提供详细信息
-   - 引用相关 issue（使用 `#issue编号` 格式）
-   - 如果这是一个进行中的工作，请添加 `[WIP]` 前缀到标题
+3. Điền form Pull Request:
+   - Sử dụng tiêu đề rõ ràng, tuân theo định dạng thông điệp gửi
+   - Cung cấp chi tiết trong mô tả
+   - Trích dẫn issue liên quan (sử dụng định dạng `#số-issue`)
+   - Nếu đây là công việc đang tiến hành, thêm tiền tố `[WIP]` vào tiêu đề
 
-4. 提交 Pull Request，等待项目维护者审核
+4. Gửi Pull Request, chờ người duy trì dự án xem xét
 
-### Pull Request 的生命周期
+### Chu Kỳ Đời Sống Pull Request
 
-1. **创建**：提交您的 PR
-2. **CI 检查**：自动化测试和代码风格检查
-3. **代码审核**：维护者会审核您的代码并提供反馈
-4. **修订**：根据反馈修改您的代码
-5. **批准**：一旦您的 PR 被批准
-6. **合并**：维护者会将您的 PR 合并到主分支
+1. **Tạo**: Gửi PR của bạn
+2. **Kiểm Tra CI**: Kiểm thử tự động và kiểm tra phong cách mã
+3. **Xem Xét Mã**: Người duy trì sẽ xem xét mã của bạn và cung cấp phản hồi
+4. **Sửa Đổi**: Sửa mã theo phản hồi
+5. **Phê Duyệt**: Một khi PR của bạn được phê duyệt
+6. **Hợp Nhất**: Người duy trì sẽ hợp nhất PR của bạn vào nhánh chính
 
-## 文档贡献
+## Đóng Góp Tài Liệu
 
-如果您想改进项目文档，请按照以下步骤操作：
+Nếu bạn muốn cải thiện tài liệu dự án, hãy làm theo các bước sau:
 
-1. 按照上述步骤 Fork 项目并克隆到本地
+1. Fork dự án và clone về cục bộ theo các bước trên
 
-2. 文档位于 `documents/docs` 目录下，使用 Markdown 格式
+2. Tài liệu nằm trong thư mục `documents/docs`, sử dụng định dạng Markdown
 
-3. 安装文档开发依赖：
+3. Cài đặt phụ thuộc phát triển tài liệu:
 
 ```bash
 cd documents
 pnpm install
 ```
 
-4. 启动本地文档服务器：
+4. Khởi động máy chủ tài liệu cục bộ:
 
 ```bash
 pnpm docs:dev
 ```
 
-5. 在浏览器中访问 `http://localhost:5173/xiaozhi-android/` 预览您的更改
+5. Truy cập `http://localhost:5173/xiaozhi-android/` trong trình duyệt để xem trước thay đổi của bạn
 
-6. 完成更改后，提交您的贡献并创建 Pull Request
+6. Sau khi hoàn thành thay đổi, gửi đóng góp và tạo Pull Request
 
-### 文档编写准则
+### Hướng Dẫn Viết Tài Liệu
 
-- 使用清晰、简洁的语言
-- 提供实际示例
-- 对复杂概念进行详细解释
-- 包含适当的截图或图表（需要时）
-- 避免技术术语过多，必要时提供解释
-- 保持文档结构一致
+- Sử dụng ngôn ngữ rõ ràng, ngắn gọn
+- Cung cấp ví dụ thực tế
+- Giải thích chi tiết các khái niệm phức tạp
+- Bao gồm ảnh chụp màn hình hoặc biểu đồ phù hợp (nếu cần)
+- Tránh sử dụng quá nhiều thuật ngữ kỹ thuật, giải thích nếu cần
+- Giữ cấu trúc tài liệu nhất quán
 
-## 问题反馈
+## Phản Hồi Vấn Đề
 
-如果您发现了问题但暂时无法修复，请在 GitHub 上[创建 Issue](https://github.com/huangjunsen0406/xiaozhi-android/issues/new)。创建 Issue 时，请包含以下信息：
+Nếu bạn phát hiện vấn đề nhưng tạm thời không thể sửa, hãy [tạo Issue trên GitHub](https://github.com/TOM88812/xiaozhi-android-client/issues/new). Khi tạo Issue, hãy bao gồm thông tin sau:
 
-- 问题的详细描述
-- 重现问题的步骤
-- 预期行为和实际行为
-- 您的操作系统和 Python 版本
-- 相关的日志输出或错误信息
+- Mô tả chi tiết vấn đề
+- Các bước tái hiện vấn đề
+- Hành vi mong đợi và hành vi thực tế
+- Hệ điều hành và phiên bản Dart của bạn
+- Đầu ra nhật ký liên quan hoặc thông tin lỗi
 
-## 代码审核
+## Xem Xét Mã
 
-提交 Pull Request 后，项目维护者将会审核您的代码。在代码审核过程中：
+Sau khi gửi Pull Request, người duy trì dự án sẽ xem xét mã của bạn. Trong quá trình xem xét mã:
 
-- 请耐心等待反馈
-- 及时响应评论和建议
-- 必要时进行修改并更新您的 Pull Request
-- 保持礼貌和建设性的讨论
+- Hãy kiên nhẫn chờ phản hồi
+- Phản hồi kịp thời các bình luận và gợi ý
+- Thực hiện sửa đổi nếu cần và cập nhật Pull Request của bạn
+- Giữ thái độ lịch sự và xây dựng trong thảo luận
 
-### 处理代码审核反馈
+### Xử Lý Phản Hồi Xem Xét Mã
 
-1. 认真阅读所有评论和建议
-2. 针对每个要点作出回应或更改
-3. 如果您不同意某个建议，礼貌地解释您的理由
-4. 修改完成后，在 PR 中留言通知审核者
+1. Đọc kỹ tất cả bình luận và gợi ý
+2. Phản hồi hoặc thay đổi cho từng điểm
+3. Nếu bạn không đồng ý với gợi ý nào đó, hãy giải thích lý do một cách lịch sự
+4. Sau khi sửa đổi hoàn tất, gửi tin nhắn trong PR để thông báo cho người xem xét
 
-## 成为项目维护者
+## Trở Thành Người Duy Trì Dự Án
 
-如果您持续为项目做出有价值的贡献，您可能会被邀请成为项目的维护者。作为维护者，您将有权限审核和合并其他人的 Pull Request。
+Nếu bạn liên tục đóng góp giá trị cho dự án, bạn có thể được mời trở thành người duy trì dự án. Là người duy trì, bạn sẽ có quyền xem xét và hợp nhất Pull Request của người khác.
 
-### 维护者的职责
+### Trách Nhiệm Của Người Duy Trì
 
-- 审核 Pull Request
-- 管理 issue
-- 参与项目规划
-- 回答社区问题
-- 帮助引导新贡献者
+- Xem xét Pull Request
+- Quản lý issue
+- Tham gia lập kế hoạch dự án
+- Trả lời câu hỏi cộng đồng
+- Hướng dẫn người đóng góp mới
 
-## 行为准则
+## Quy Tắc Hành Vi
 
-请尊重所有项目参与者，遵循以下行为准则：
+Hãy tôn trọng tất cả người tham gia dự án, tuân theo quy tắc hành vi sau:
 
-- 使用包容性语言
-- 尊重不同的观点和经验
-- 优雅地接受建设性批评
-- 关注社区最佳利益
-- 对其他社区成员表示同理心
+- Sử dụng ngôn ngữ hòa nhập
+- Tôn trọng các quan điểm và kinh nghiệm khác nhau
+- Chấp nhận phê bình xây dựng một cách lịch sự
+- Tập trung vào lợi ích tốt nhất của cộng đồng
+- Thể hiện sự đồng cảm với các thành viên cộng đồng khác
 
-## 常见问题解答
+## Câu Hỏi Thường Gặp
 
-### 我应该从哪里开始贡献？
+### Tôi nên bắt đầu đóng góp từ đâu?
 
-1. 查看标记为 "good first issue" 的问题
-2. 修复文档中的错误或不清晰的部分
-3. 添加更多测试用例
-4. 解决您自己在使用过程中发现的问题
+1. Xem các vấn đề được đánh dấu "good first issue"
+2. Sửa lỗi hoặc phần không rõ ràng trong tài liệu
+3. Thêm nhiều trường hợp kiểm thử hơn
+4. Giải quyết vấn đề bạn phát hiện khi sử dụng
 
-### 我提交的 PR 已经很久没有回应了，我该怎么办？
+### PR của tôi đã lâu không có phản hồi, tôi phải làm sao?
 
-在 PR 中留言，礼貌地询问是否需要进一步的改进或澄清。请理解维护者可能很忙，需要一些时间来审核您的贡献。
+Gửi tin nhắn trong PR, lịch sự hỏi xem có cần cải thiện hoặc làm rõ thêm không. Hãy hiểu rằng người duy trì có thể bận rộn và cần thời gian để xem xét đóng góp của bạn.
 
-### 我可以贡献哪些类型的更改？
+### Tôi có thể đóng góp loại thay đổi nào?
 
-- 错误修复
-- 新功能
-- 性能改进
-- 文档更新
-- 测试用例
-- 代码重构
+- Sửa lỗi
+- Tính năng mới
+- Cải thiện hiệu suất
+- Cập nhật tài liệu
+- Trường hợp kiểm thử
+- Tái cấu trúc mã
 
-## 致谢
+## Lời Cảm Ơn
 
-再次感谢您为项目做出贡献！您的参与对我们非常重要，共同努力让 android-xiaozhi 变得更好！
+Một lần nữa, cảm ơn bạn đã đóng góp cho dự án! Sự tham gia của bạn rất quan trọng đối với chúng tôi, cùng nhau làm cho android-xiaozhi tốt hơn!
 
 </div>
 
@@ -444,4 +444,4 @@ pnpm docs:dev
   border-radius: 8px;
   overflow: auto;
 }
-</style> 
+</style>

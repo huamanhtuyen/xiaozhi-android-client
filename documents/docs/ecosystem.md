@@ -1,48 +1,48 @@
 ---
-title: 相关生态
-description: Android-xiaozhi项目相关的生态系统和扩展项目
+title: Hệ sinh thái liên quan
+description: Hệ thống sinh thái và các dự án mở rộng liên quan đến dự án Android-xiaozhi
 sidebar: false
 outline: deep
 ---
 
 <div class="ecosystem-page">
 
-# 相关生态
+# Hệ sinh thái liên quan
 
 <div class="header-content">
-  <h2>Android-xiaozhi项目生态系统 🌱</h2>
-  <p>探索围绕Android-xiaozhi构建的相关项目和扩展</p>
+  <h2>Hệ sinh thái dự án Android-xiaozhi 🌱</h2>
+  <p>Khám phá các dự án và mở rộng được xây dựng xung quanh Android-xiaozhi</p>
 </div>
 
-## 生态概览
+## Tổng quan hệ sinh thái
 
-本页面将收集和展示Android-xiaozhi项目相关的生态系统项目，包括：
+Trang này sẽ thu thập và hiển thị các dự án hệ sinh thái liên quan đến dự án Android-xiaozhi, bao gồm:
 
-- 官方扩展和插件
-- 社区贡献的项目
-- 兼容的硬件设备
-- 第三方集成方案
-- 示例项目和案例分析
+- Các mở rộng và plugin chính thức
+- Các dự án đóng góp từ cộng đồng
+- Thiết bị phần cứng tương thích
+- Các giải pháp tích hợp bên thứ ba
+- Các dự án mẫu và phân tích trường hợp
 
-> 🚧 此页面正在建设中...
+> 🚧 Trang này đang được xây dựng...
 
-## 即将推出
+## Sắp ra mắt
 
-我们计划收集和整理以下内容：
+Chúng tôi dự định thu thập và sắp xếp các nội dung sau:
 
-- 各种设备上的安装和运行指南
-- 与智能家居系统的集成方案
-- 定制语音指令和技能的开发教程
-- 基于Android-xiaozhi构建的项目案例
-- 社区贡献的扩展功能
+- Hướng dẫn cài đặt và chạy trên các thiết bị khác nhau
+- Các giải pháp tích hợp với hệ thống nhà thông minh
+- Hướng dẫn phát triển lệnh thoại tùy chỉnh và kỹ năng
+- Các trường hợp dự án được xây dựng dựa trên Android-xiaozhi
+- Các chức năng mở rộng từ cộng đồng
 
-## 参与贡献
+## Tham gia đóng góp
 
-如果您有相关的项目或扩展想要分享，欢迎通过以下方式参与贡献：
+Nếu bạn có dự án hoặc mở rộng liên quan muốn chia sẻ, vui lòng tham gia đóng góp qua các cách sau:
 
-1. 在GitHub上提交Pull Request，添加您的项目
-2. 在Issues中建议您希望看到的集成或扩展
-3. 分享您使用Android-xiaozhi的经验和案例
+1. Gửi Pull Request trên GitHub, thêm dự án của bạn
+2. Đề xuất trong Issues về tích hợp hoặc mở rộng bạn muốn thấy
+3. Chia sẻ kinh nghiệm và trường hợp sử dụng Android-xiaozhi của bạn
 
 </div>
 
@@ -81,4 +81,4 @@ outline: deep
   margin: 2rem 0;
   border-radius: 0 8px 8px 0;
 }
-</style> 
+</style>

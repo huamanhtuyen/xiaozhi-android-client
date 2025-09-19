@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: Bắt đầu sử dụng
-      link: /guide/00_文档目录
+      link: /guide/00_thu-muc-tai-lieu.md
     - theme: alt
       text: Xem mã nguồn
       link: https://github.com/TOM88812/xiaozhi-android-client

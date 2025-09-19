@@ -1,29 +1,29 @@
 ---
-title: 贡献者名单
-description: 感谢所有为项目做出贡献的开源人员
+title: Danh sách người đóng góp
+description: Cảm ơn tất cả những người đóng góp mã nguồn mở cho dự án
 sidebar: false
 outline: deep
 ---
 
 <div class="contributors-page">
 
-# 贡献者名单
+# Danh sách người đóng góp
 
 <div class="header-content">
-  <h2>感谢以下开源人员在移动端项目提供的帮助 ❤️</h2>
-  <p>排名不分前后</p>
+  <h2>Cảm ơn những người đóng góp mã nguồn mở sau đây đã hỗ trợ dự án di động ❤️</h2>
+  <p>Xếp hạng không theo thứ tự</p>
 </div>
 
 <div class="contributors-list">
 
   <div class="contributor-card">
     <div class="contributor-name">huangjunsen0406</div>
-    <div class="contributor-link"><a href="https://github.com/huangjunsen0406" target="_blank">GitHub 主页</a></div>
+    <div class="contributor-link"><a href="https://github.com/huangjunsen0406" target="_blank">Trang GitHub</a></div>
   </div>
   
   <div class="contributor-card">
     <div class="contributor-name">xinnan-tech</div>
-    <div class="contributor-link"><a href="https://github.com/xinnan-tech" target="_blank">GitHub 主页</a></div>
+    <div class="contributor-link"><a href="https://github.com/xinnan-tech" target="_blank">Trang GitHub</a></div>
   </div>
 
 </div>
@@ -98,4 +98,4 @@ outline: deep
     grid-template-columns: 1fr;
   }
 }
-</style> 
+</style>

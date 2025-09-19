@@ -4,58 +4,58 @@ import { getGuideSideBarItems } from './guide'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "ANDROID-XIAOZHI",
-  description: "android-xiaozhi 是一个基于Flutter的跨平台小智客户端，支持iOS、Android、Web等多平台",
+  description: "android-xiaozhi là một ứng dụng khách nhỏ thông minh đa nền tảng dựa trên Flutter, hỗ trợ iOS, Android, Web và nhiều nền tảng khác",
   base: '/xiaozhi-android-client/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: '主页', link: '/' },
-      { text: '指南', link: '/guide/00_文档目录' },
-      { text: '相关生态', link: '/ecosystem/' },
-      { text: '贡献指南', link: '/contributing' },
-      { text: '特殊贡献者', link: '/contributors' },
-      { text: '赞助', link: '/sponsors/' }
+      { text: 'Trang chủ', link: '/' },
+      { text: 'Hướng dẫn', link: '/guide/00_文档目录' },
+      { text: 'Hệ sinh thái liên quan', link: '/ecosystem/' },
+      { text: 'Hướng dẫn đóng góp', link: '/contributing' },
+      { text: 'Người đóng góp đặc biệt', link: '/contributors' },
+      { text: 'Tài trợ', link: '/sponsors/' }
     ],
 
     sidebar: {
       '/guide/': [
         {
-          text: '指南',
-          // 默认展开
+          text: 'Hướng dẫn',
+          // Mở rộng mặc định
           collapsed: false,
           items: getGuideSideBarItems(),
         }
       ],
       '/ecosystem/': [
         {
-          text: '生态系统概览',
+          text: 'Tổng quan hệ sinh thái',
           link: '/ecosystem/'
         },
         {
-          text: '相关项目',
+          text: 'Dự án liên quan',
           collapsed: false,
           items: [
-            { text: '小智Python端', link: '/ecosystem/projects/py-xiaozhi/' },
+            { text: 'Phía Python của XiaoZhi', link: '/ecosystem/projects/py-xiaozhi/' },
             { text: 'xiaozhi-esp32-server', link: '/ecosystem/projects/xiaozhi-esp32-server/' }
           ]
         },
         // {
-        //   text: '资源和支持',
+        //   text: 'Tài nguyên và hỗ trợ',
         //   collapsed: true,
         //   items: [
-        //     { text: '官方扩展和插件', link: '/ecosystem/resources/official-extensions/' },
-        //     { text: '社区贡献', link: '/ecosystem/resources/community-contributions/' },
-        //     { text: '兼容设备', link: '/ecosystem/resources/compatible-devices/' }
+        //     { text: 'Phần mở rộng và plugin chính thức', link: '/ecosystem/resources/official-extensions/' },
+        //     { text: 'Đóng góp cộng đồng', link: '/ecosystem/resources/community-contributions/' },
+        //     { text: 'Thiết bị tương thích', link: '/ecosystem/resources/compatible-devices/' }
         //   ]
         // }
       ],
-      // 赞助页面不显示侧边栏
+      // Trang tài trợ không hiển thị thanh bên
       '/sponsors/': [],
-      // 贡献指南页面不显示侧边栏
+      // Trang hướng dẫn đóng góp không hiển thị thanh bên
       '/contributing': [],
-      // 贡献者名单页面不显示侧边栏
+      // Trang danh sách người đóng góp không hiển thị thanh bên
       '/contributors': [],
-      // 系统架构页面不显示侧边栏
+      // Trang kiến trúc hệ thống không hiển thị thanh bên
       '/architecture/': []
     },
 
