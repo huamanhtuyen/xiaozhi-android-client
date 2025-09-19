@@ -11,12 +11,12 @@ import 'package:audio_session/audio_session.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_pcm_player/flutter_pcm_player.dart';
 
-/// 音频工具类，用于处理Opus音频编解码和录制播放
+/// Công cụ âm thanh, dùng để xử lý mã hóa/giải mã Opus và ghi âm/phát lại
 class AudioUtil {
   static const String TAG = "AudioUtil";
   static const int SAMPLE_RATE = 16000;
   static const int CHANNELS = 1;
-  static const int FRAME_DURATION = 60; // 毫秒
+  static const int FRAME_DURATION = 60; // mili giây
 
   static final AudioRecorder _audioRecorder = AudioRecorder();
   static ja.AudioPlayer? _player;
@@ -29,7 +29,7 @@ class AudioUtil {
   static String? _tempFilePath;
   static Timer? _audioProcessingTimer;
 
-  // Opus相关
+  // Các thành phần liên quan đến Opus
   static final _encoder = SimpleOpusEncoder(
     sampleRate: SAMPLE_RATE,
     channels: CHANNELS,
@@ -40,21 +40,21 @@ class AudioUtil {
     channels: CHANNELS,
   );
 
-  // FlutterPcmPlayer实例
+  // Instance của FlutterPcmPlayer
   static FlutterPcmPlayer? _pcmPlayer;
 
-  /// 获取音频流
+  /// Lấy luồng âm thanh
   static Stream<Uint8List> get audioStream => _audioStreamController.stream;
 
-  /// 初始化音频录制器
+  /// Khởi tạo bộ ghi âm
   static Future<void> initRecorder() async {
     if (_isRecorderInitialized) return;
 
-    print('$TAG: 开始初始化录音器');
+    print('$TAG: Bắt đầu khởi tạo bộ ghi âm');
 
-    // 更积极地请求所有可能需要的权限
+    // Yêu cầu tích cực hơn tất cả các quyền có thể cần thiết
     if (Platform.isAndroid) {
-      print('$TAG: 请求Android所需的所有权限');
+      print('$TAG: Yêu cầu tất cả quyền cần thiết cho Android');
       Map<Permission, PermissionStatus> statuses =
           await [
             Permission.microphone,
@@ -65,36 +65,36 @@ class AudioUtil {
             Permission.bluetoothScan,
           ].request();
 
-      print('$TAG: 权限状态:');
+      print('$TAG: Trạng thái quyền:');
       statuses.forEach((permission, status) {
         print('$TAG: $permission: $status');
       });
 
       if (statuses[Permission.microphone] != PermissionStatus.granted) {
-        print('$TAG: 麦克风权限被拒绝');
-        throw Exception('需要麦克风权限');
+        print('$TAG: Quyền micro bị từ chối');
+        throw Exception('Cần quyền micro');
       }
     } else {
-      // iOS/其他平台只请求麦克风权限
+      // iOS/các nền tảng khác chỉ yêu cầu quyền micro
       final status = await Permission.microphone.request();
       if (status != PermissionStatus.granted) {
-        print('$TAG: 麦克风权限被拒绝');
-        throw Exception('需要麦克风权限');
+        print('$TAG: Quyền micro bị từ chối');
+        throw Exception('Cần quyền micro');
       }
     }
 
-    // 检查是否可用
-    print('$TAG: 检查PCM16编码是否支持');
+    // Kiểm tra tính khả dụng
+    print('$TAG: Kiểm tra xem mã hóa PCM16 có được hỗ trợ không');
     final isAvailable = await _audioRecorder.isEncoderSupported(
       AudioEncoder.pcm16bits,
     );
-    print('$TAG: PCM16编码支持状态: $isAvailable');
+    print('$TAG: Trạng thái hỗ trợ mã hóa PCM16: $isAvailable');
 
-    // 设置音频模式 - 参考Android原生实现
-    print('$TAG: 配置音频会话');
+    // Thiết lập chế độ âm thanh - tham khảo triển khai Android gốc
+    print('$TAG: Cấu hình phiên âm thanh');
     final session = await AudioSession.instance;
 
-    // 使用与原生Android实现更接近的配置
+    // Sử dụng cấu hình gần với triển khai Android gốc hơn
     if (Platform.isAndroid) {
       await session.configure(
         const AudioSessionConfiguration(
@@ -125,84 +125,84 @@ class AudioUtil {
     }
 
     _isRecorderInitialized = true;
-    print('$TAG: 录音器初始化成功');
+    print('$TAG: Khởi tạo bộ ghi âm thành công');
   }
 
-  /// 初始化音频播放器
+  /// Khởi tạo trình phát âm thanh
   static Future<void> initPlayer() async {
-    // 确保任何旧播放器被释放
+    // Đảm bảo bất kỳ trình phát cũ nào được giải phóng
     await stopPlaying();
 
     try {
-      print('$TAG: 使用简单方式初始化PCM播放器');
+      print('$TAG: Sử dụng cách đơn giản để khởi tạo trình phát PCM');
 
-      // 创建新的播放器实例 - 完全按照官方示例的简单方式
+      // Tạo instance trình phát mới - hoàn toàn theo cách đơn giản của ví dụ chính thức
       _pcmPlayer = FlutterPcmPlayer();
       await _pcmPlayer!.initialize();
       await _pcmPlayer!.play();
 
       _isPlayerInitialized = true;
-      print('$TAG: PCM播放器初始化成功');
+      print('$TAG: Khởi tạo trình phát PCM thành công');
     } catch (e) {
-      print('$TAG: PCM播放器初始化失败: $e');
+      print('$TAG: Khởi tạo trình phát PCM thất bại: $e');
       _isPlayerInitialized = false;
     }
   }
 
-  /// 播放Opus音频数据
+  /// Phát dữ liệu âm thanh Opus
   static Future<void> playOpusData(Uint8List opusData) async {
     try {
-      // 如果播放器未初始化，先初始化
+      // Nếu trình phát chưa được khởi tạo, khởi tạo trước
       if (!_isPlayerInitialized || _pcmPlayer == null) {
         await initPlayer();
       }
 
-      // 解码Opus数据
+      // Giải mã dữ liệu Opus
       final Int16List pcmData = _decoder.decode(input: opusData);
 
-      // 准备PCM数据（按照示例直接方式）
+      // Chuẩn bị dữ liệu PCM (theo cách trực tiếp trong ví dụ)
       final Uint8List pcmBytes = Uint8List(pcmData.length * 2);
       ByteData bytes = ByteData.view(pcmBytes.buffer);
 
-      // 使用小端字节序
+      // Sử dụng thứ tự byte little-endian
       for (int i = 0; i < pcmData.length; i++) {
         bytes.setInt16(i * 2, pcmData[i], Endian.little);
       }
 
-      // 直接发送到播放器
+      // Gửi trực tiếp đến trình phát
       if (_pcmPlayer != null) {
         await _pcmPlayer!.feed(pcmBytes);
       }
     } catch (e) {
-      print('$TAG: 播放失败: $e');
+      print('$TAG: Phát thất bại: $e');
 
-      // 简单重置并重新初始化
+      // Đơn giản reset và khởi tạo lại
       await stopPlaying();
       await initPlayer();
     }
   }
 
-  /// 停止播放
+  /// Dừng phát
   static Future<void> stopPlaying() async {
     if (_pcmPlayer != null) {
       try {
         await _pcmPlayer!.stop();
-        print('$TAG: 播放器已停止');
+        print('$TAG: Trình phát đã dừng');
       } catch (e) {
-        print('$TAG: 停止播放失败: $e');
+        print('$TAG: Dừng phát thất bại: $e');
       }
       _pcmPlayer = null;
       _isPlayerInitialized = false;
     }
   }
 
-  /// 释放资源
+  /// Giải phóng tài nguyên
   static Future<void> dispose() async {
     _audioStreamController.close();
-    print('$TAG: 资源已释放');
+    print('$TAG: Tài nguyên đã được giải phóng');
   }
 
-  /// 开始录音
+  /// Bắt đầu ghi âm
   static Future<void> startRecording() async {
     if (!_isRecorderInitialized) {
       await initRecorder();
@@ -211,24 +211,24 @@ class AudioUtil {
     if (_isRecording) return;
 
     try {
-      print('$TAG: 尝试启动录音');
+      print('$TAG: Thử khởi động ghi âm');
 
-      // 确保麦克风权限已获取 - 使用不同方式检查权限
+      // Đảm bảo quyền micro đã được cấp - sử dụng cách khác để kiểm tra quyền
       final status = await Permission.microphone.status;
-      print('$TAG: 麦克风权限状态: $status');
+      print('$TAG: Trạng thái quyền micro: $status');
 
       if (status != PermissionStatus.granted) {
         final result = await Permission.microphone.request();
-        print('$TAG: 请求麦克风权限结果: $result');
+        print('$TAG: Kết quả yêu cầu quyền micro: $result');
         if (result != PermissionStatus.granted) {
-          print('$TAG: 麦克风权限被拒绝');
+          print('$TAG: Quyền micro bị từ chối');
           return;
         }
       }
 
-      // 尝试直接使用音频流
+      // Thử sử dụng trực tiếp luồng âm thanh
       try {
-        print('$TAG: 尝试启动流式录音');
+        print('$TAG: Thử khởi động ghi âm theo luồng');
         final stream = await _audioRecorder.startStream(
           const RecordConfig(
             encoder: AudioEncoder.pcm16bits,
@@ -238,9 +238,9 @@ class AudioUtil {
         );
 
         _isRecording = true;
-        print('$TAG: 流式录音启动成功');
+        print('$TAG: Khởi động ghi âm theo luồng thành công');
 
-        // 直接从流中处理数据
+        // Xử lý dữ liệu trực tiếp từ luồng
         stream.listen(
           (data) async {
             if (data.isNotEmpty && data.length % 2 == 0) {
@@ -251,51 +251,51 @@ class AudioUtil {
             }
           },
           onError: (error) {
-            print('$TAG: 音频流错误: $error');
+            print('$TAG: Lỗi luồng âm thanh: $error');
             _isRecording = false;
           },
           onDone: () {
-            print('$TAG: 音频流结束');
+            print('$TAG: Luồng âm thanh kết thúc');
             _isRecording = false;
           },
         );
       } catch (e) {
-        print('$TAG: 流式录音失败: $e');
+        print('$TAG: Ghi âm theo luồng thất bại: $e');
         _isRecording = false;
         rethrow;
       }
     } catch (e, stackTrace) {
-      print('$TAG: 启动录音失败: $e');
+      print('$TAG: Khởi động ghi âm thất bại: $e');
       print(stackTrace);
       _isRecording = false;
     }
   }
 
-  /// 停止录音
+  /// Dừng ghi âm
   static Future<String?> stopRecording() async {
     if (!_isRecorderInitialized || !_isRecording) return null;
 
-    // 取消定时器
+    // Hủy bộ đếm thời gian
     _audioProcessingTimer?.cancel();
 
-    // 停止录音
+    // Dừng ghi âm
     try {
       final path = await _audioRecorder.stop();
       _isRecording = false;
-      print('$TAG: 停止录音: $path');
+      print('$TAG: Dừng ghi âm: $path');
       return path;
     } catch (e) {
-      print('$TAG: 停止录音失败: $e');
+      print('$TAG: Dừng ghi âm thất bại: $e');
       _isRecording = false;
       return null;
     }
   }
 
-  /// 将PCM数据编码为Opus格式
+  /// Mã hóa dữ liệu PCM thành định dạng Opus
   static Future<Uint8List?> encodeToOpus(Uint8List pcmData) async {
     try {
-      // 删除频繁日志
-      // 转换PCM数据为Int16List (小端字节序，与Android一致)
+      // Xóa log thường xuyên
+      // Chuyển đổi dữ liệu PCM thành Int16List (thứ tự byte little-endian, nhất quán với Android)
       final Int16List pcmInt16 = Int16List.fromList(
         List.generate(
           pcmData.length ~/ 2,
@@ -303,23 +303,23 @@ class AudioUtil {
         ),
       );
 
-      // 确保数据长度符合Opus要求（必须是2.5ms、5ms、10ms、20ms、40ms或60ms的采样数）
+      // Đảm bảo độ dài dữ liệu phù hợp với yêu cầu Opus (phải là số mẫu của 2.5ms, 5ms, 10ms, 20ms, 40ms hoặc 60ms)
       final int samplesPerFrame = (SAMPLE_RATE * FRAME_DURATION) ~/ 1000;
 
       Uint8List encoded;
 
-      // 处理过短的数据
+      // Xử lý dữ liệu quá ngắn
       if (pcmInt16.length < samplesPerFrame) {
-        // 对于过短的数据，可以通过添加静音来填充到所需长度
+        // Đối với dữ liệu quá ngắn, có thể thêm âm im lặng để lấp đầy đến độ dài cần thiết
         final Int16List paddedData = Int16List(samplesPerFrame);
         for (int i = 0; i < pcmInt16.length; i++) {
           paddedData[i] = pcmInt16[i];
         }
 
-        // 编码填充后的数据
+        // Mã hóa dữ liệu sau khi lấp đầy
         encoded = Uint8List.fromList(_encoder.encode(input: paddedData));
       } else {
-        // 对于足够长的数据，裁剪到精确的帧长度
+        // Đối với dữ liệu đủ dài, cắt đến độ dài khung chính xác
         encoded = Uint8List.fromList(
           _encoder.encode(input: pcmInt16.sublist(0, samplesPerFrame)),
         );
@@ -327,15 +327,15 @@ class AudioUtil {
 
       return encoded;
     } catch (e, stackTrace) {
-      print('$TAG: Opus编码失败: $e');
+      print('$TAG: Mã hóa Opus thất bại: $e');
       print(stackTrace);
       return null;
     }
   }
 
-  /// 检查是否正在录音
+  /// Kiểm tra xem có đang ghi âm không
   static bool get isRecording => _isRecording;
 
-  /// 检查是否正在播放
+  /// Kiểm tra xem có đang phát không
   static bool get isPlaying => _isPlaying;
 }
