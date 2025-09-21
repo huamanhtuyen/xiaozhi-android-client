@@ -297,7 +297,7 @@ class XiaozhiWebSocketManager {
     );
   }
 
-  /// 判断是否已连接
+  /// kiểm tra trạng thái kết nối
   bool get isConnected {
     return _channel != null && _streamSubscription != null;
   }

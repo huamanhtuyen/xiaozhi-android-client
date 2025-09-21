@@ -507,7 +507,11 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Colors.grey.shade800,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
-            margin: EdgeInsets.only(bottom: 70, left: 20, right: 20),
+            margin: EdgeInsets.only(
+              bottom: 70 + MediaQuery.of(context).padding.bottom,
+              left: 20,
+              right: 20
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -716,6 +720,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             content: Text('${conversation.title} đã bị xóa'),
                             backgroundColor: Colors.grey.shade800,
                             behavior: SnackBarBehavior.floating,
+                            margin: EdgeInsets.only(
+                              bottom: 70 + MediaQuery.of(context).padding.bottom,
+                              left: 20,
+                              right: 20
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),

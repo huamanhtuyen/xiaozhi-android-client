@@ -648,7 +648,11 @@ class _SettingsScreenState extends State<SettingsScreen>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            margin: const EdgeInsets.all(10),
+                            margin: EdgeInsets.only(
+                              bottom: 70 + MediaQuery.of(context).padding.bottom,
+                              left: 20,
+                              right: 20
+                            ),
                           ),
                         );
                       },
@@ -892,7 +896,11 @@ class _SettingsScreenState extends State<SettingsScreen>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              margin: const EdgeInsets.all(10),
+                              margin: EdgeInsets.only(
+                                bottom: 70 + MediaQuery.of(context).padding.bottom,
+                                left: 20,
+                                right: 20
+                              ),
                             ),
                           );
                           return;
@@ -919,7 +927,11 @@ class _SettingsScreenState extends State<SettingsScreen>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            margin: const EdgeInsets.all(10),
+                            margin: EdgeInsets.only(
+                              bottom: 70 + MediaQuery.of(context).padding.bottom,
+                              left: 20,
+                              right: 20
+                            ),
                           ),
                         );
                       },
@@ -1068,7 +1080,11 @@ class _SettingsScreenState extends State<SettingsScreen>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            margin: const EdgeInsets.all(10),
+                            margin: EdgeInsets.only(
+                              bottom: 70 + MediaQuery.of(context).padding.bottom,
+                              left: 20,
+                              right: 20
+                            ),
                           ),
                         );
                       },
@@ -1643,7 +1659,11 @@ class _SettingsScreenState extends State<SettingsScreen>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              margin: const EdgeInsets.all(10),
+                              margin: EdgeInsets.only(
+                                bottom: 70 + MediaQuery.of(context).padding.bottom,
+                                left: 20,
+                                right: 20
+                              ),
                             ),
                           );
                           return;
