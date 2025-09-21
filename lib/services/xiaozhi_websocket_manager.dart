@@ -2,14 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
-// 尝试导入io.dart，但在web平台会抛出异常
+// Thử import io.dart, nhưng sẽ ném ngoại lệ trên nền tảng web
 import 'package:web_socket_channel/io.dart'
     if (dart.library.html) 'package:web_socket_channel/html.dart';
 
-/// 小智WebSocket事件类型
+/// Loại sự kiện WebSocket của Xiaozhi
 enum XiaozhiEventType { connected, disconnected, message, error, binaryMessage }
 
-/// 小智WebSocket事件
+/// Sự kiện WebSocket của Xiaozhi
 class XiaozhiEvent {
   final XiaozhiEventType type;
   final dynamic data;
@@ -17,13 +17,13 @@ class XiaozhiEvent {
   XiaozhiEvent({required this.type, this.data});
 }
 
-/// 小智WebSocket监听器接口
+/// Giao diện listener WebSocket của Xiaozhi
 typedef XiaozhiWebSocketListener = void Function(XiaozhiEvent event);
 
-/// 小智WebSocket管理器
+/// Trình quản lý WebSocket của Xiaozhi
 class XiaozhiWebSocketManager {
   static const String TAG = "XiaozhiWebSocket";
-  static const int RECONNECT_DELAY = 3000; // 3秒后重连
+  static const int RECONNECT_DELAY = 3000; // Kết nối lại sau 3 giây
 
   WebSocketChannel? _channel;
   String? _serverUrl;
@@ -36,107 +36,107 @@ class XiaozhiWebSocketManager {
   Timer? _reconnectTimer;
   StreamSubscription? _streamSubscription;
 
-  /// 构造函数
+  /// Hàm khởi tạo
   XiaozhiWebSocketManager({required String deviceId, bool enableToken = false})
     : _deviceId = deviceId,
       _enableToken = enableToken;
 
-  /// 添加事件监听器
+  /// Thêm listener sự kiện
   void addListener(XiaozhiWebSocketListener listener) {
     if (!_listeners.contains(listener)) {
       _listeners.add(listener);
     }
   }
 
-  /// 移除事件监听器
+  /// Xóa listener sự kiện
   void removeListener(XiaozhiWebSocketListener listener) {
     _listeners.remove(listener);
   }
 
-  /// 分发事件到所有监听器
+  /// Phân phối sự kiện đến tất cả listener
   void _dispatchEvent(XiaozhiEvent event) {
     for (var listener in _listeners) {
       listener(event);
     }
   }
 
-  /// 连接到WebSocket服务器
+  /// Kết nối đến máy chủ WebSocket
   Future<void> connect(String url, String token) async {
     if (url.isEmpty) {
       _dispatchEvent(
-        XiaozhiEvent(type: XiaozhiEventType.error, data: "WebSocket地址不能为空"),
+        XiaozhiEvent(type: XiaozhiEventType.error, data: "Địa chỉ WebSocket không được để trống"),
       );
       return;
     }
 
-    // 保存连接参数
+    // Lưu tham số kết nối
     _serverUrl = url;
     _token = token;
 
-    // 如果已连接，先断开
+    // Nếu đã kết nối, ngắt kết nối trước
     if (_channel != null) {
       await disconnect();
     }
 
     try {
-      // 创建WebSocket连接
+      // Tạo kết nối WebSocket
       Uri uri = Uri.parse(url);
 
-      print('$TAG: 正在连接 $url');
-      print('$TAG: 设备ID: $_deviceId');
-      print('$TAG: Token启用: $_enableToken');
+      print('$TAG: Đang kết nối $url');
+      print('$TAG: ID thiết bị: $_deviceId');
+      print('$TAG: Token được bật: $_enableToken');
 
       if (_enableToken) {
-        print('$TAG: 使用Token: $token');
+        print('$TAG: Sử dụng Token: $token');
       }
 
-      // 尝试使用headers (这在非Web平台上有效)
+      // Thử sử dụng headers (cái này có hiệu lực trên nền tảng không phải Web)
       try {
-        // 创建headers
+        // Tạo headers
         Map<String, dynamic> headers = {
           'device-id': _deviceId ?? '',
           'client-id': _deviceId ?? '',
           'protocol-version': '1',
         };
 
-        // 添加Authorization头，参考Java实现
+        // Thêm header Authorization, tham khảo implementation Java
         if (_enableToken && token.isNotEmpty) {
           headers['Authorization'] = 'Bearer $token';
-          print('$TAG: 添加Authorization头: Bearer $token');
+          print('$TAG: Thêm header Authorization: Bearer $token');
         } else {
           headers['Authorization'] = 'Bearer test-token';
-          print('$TAG: 添加默认Authorization头: Bearer test-token');
+          print('$TAG: Thêm header Authorization mặc định: Bearer test-token');
         }
 
-        // 使用IOWebSocketChannel并传递headers
+        // Sử dụng IOWebSocketChannel và truyền headers
         _channel = IOWebSocketChannel.connect(uri, headers: headers);
 
-        print('$TAG: 使用headers方式连接WebSocket成功');
+        print('$TAG: Kết nối WebSocket bằng cách sử dụng headers thành công');
       } catch (e) {
-        // 如果不支持IOWebSocketChannel（web平台），则回退到使用基本连接
-        print('$TAG: 不支持使用headers方式，回退到基本连接: $e');
+        // Nếu không hỗ trợ IOWebSocketChannel (nền tảng web), thì chuyển về sử dụng kết nối cơ bản
+        print('$TAG: Không hỗ trợ cách sử dụng headers, chuyển về kết nối cơ bản: $e');
 
-        // 创建基本连接
+        // Tạo kết nối cơ bản
         _channel = WebSocketChannel.connect(uri);
 
-        // 在连接成功后作为第一条消息发送认证信息
+        // Sau khi kết nối thành công, gửi thông tin xác thực như là tin nhắn đầu tiên
         Timer(Duration(milliseconds: 100), () {
           if (_channel != null && isConnected) {
-            // 发送认证信息作为第一条消息
+            // Gửi thông tin xác thực như là tin nhắn đầu tiên
             String authMessage =
                 'Authorization: Bearer ${_enableToken && token.isNotEmpty ? token : "test-token"}';
             _channel!.sink.add(authMessage);
-            print('$TAG: 发送认证消息: $authMessage');
+            print('$TAG: Gửi tin nhắn xác thực: $authMessage');
 
-            // 发送设备ID信息
+            // Gửi thông tin ID thiết bị
             String deviceIdMessage = 'Device-ID: $_deviceId';
             _channel!.sink.add(deviceIdMessage);
-            print('$TAG: 发送设备ID消息: $deviceIdMessage');
+            print('$TAG: Gửi tin nhắn ID thiết bị: $deviceIdMessage');
           }
         });
       }
 
-      // 监听WebSocket事件
+      // Lắng nghe sự kiện WebSocket
       _streamSubscription = _channel!.stream.listen(
         _onMessage,
         onDone: _onDisconnected,
@@ -144,44 +144,44 @@ class XiaozhiWebSocketManager {
         cancelOnError: false,
       );
 
-      // 连接成功后发送Hello消息
+      // Sau khi kết nối thành công, gửi tin nhắn Hello
       _dispatchEvent(
         XiaozhiEvent(type: XiaozhiEventType.connected, data: null),
       );
 
-      // 在发送认证信息之后发送Hello消息
+      // Gửi tin nhắn Hello sau khi gửi thông tin xác thực
       Timer(Duration(milliseconds: 200), () {
         _sendHelloMessage();
       });
 
-      print('$TAG: 已连接到 $uri');
+      print('$TAG: Đã kết nối đến $uri');
     } catch (e) {
-      print('$TAG: 连接失败: $e');
+      print('$TAG: Kết nối thất bại: $e');
       _dispatchEvent(
-        XiaozhiEvent(type: XiaozhiEventType.error, data: "创建WebSocket失败: $e"),
+        XiaozhiEvent(type: XiaozhiEventType.error, data: "Tạo WebSocket thất bại: $e"),
       );
     }
   }
 
-  /// 断开WebSocket连接
+  /// Ngắt kết nối WebSocket
   Future<void> disconnect() async {
-    // 取消重连
+    // Hủy kết nối lại
     _reconnectTimer?.cancel();
     _isReconnecting = false;
 
-    // 取消订阅
+    // Hủy đăng ký
     await _streamSubscription?.cancel();
     _streamSubscription = null;
 
-    // 关闭连接
+    // Đóng kết nối
     if (_channel != null) {
       await _channel!.sink.close(status.normalClosure);
       _channel = null;
-      print('$TAG: 连接已断开');
+      print('$TAG: Kết nối đã ngắt');
     }
   }
 
-  /// 发送Hello消息
+  /// Gửi tin nhắn Hello
   void _sendHelloMessage() {
     final hello = {
       "type": "hello",
@@ -198,19 +198,19 @@ class XiaozhiWebSocketManager {
     sendMessage(jsonEncode(hello));
   }
 
-  /// 发送文本消息
+  /// Gửi tin nhắn văn bản
   void sendMessage(String message) {
     if (_channel != null && isConnected) {
       _channel!.sink.add(message);
     } else {
-      print('$TAG: 发送失败，连接未建立');
+      print('$TAG: Gửi thất bại, kết nối chưa được thiết lập');
     }
   }
 
-  /// 发送二进制数据
+  /// Gửi dữ liệu nhị phân
   void sendBinaryMessage(List<int> data) {
     if (_channel != null && isConnected) {
-      // 调试：打印前20个字节的十六进制表示
+      // Gỡ lỗi: In ra 20 byte đầu tiên dưới dạng biểu diễn thập lục phân
       if (data.length > 0) {
         String hexData = '';
         for (int i = 0; i < data.length && i < 20; i++) {
@@ -221,22 +221,22 @@ class XiaozhiWebSocketManager {
       try {
         _channel!.sink.add(data);
       } catch (e) {
-        print('$TAG: 二进制数据发送失败: $e');
+        print('$TAG: Gửi dữ liệu nhị phân thất bại: $e');
       }
     } else {
-      print('$TAG: 发送失败，连接未建立');
+      print('$TAG: Gửi thất bại, kết nối chưa được thiết lập');
     }
   }
 
-  /// 发送文本请求
+  /// Gửi yêu cầu văn bản
   void sendTextRequest(String text) {
     if (!isConnected) {
-      print('$TAG: 发送失败，连接未建立');
+      print('$TAG: Gửi thất bại, kết nối chưa được thiết lập');
       return;
     }
 
     try {
-      // 构造消息格式，与Java实现保持一致
+      // Xây dựng định dạng tin nhắn, giữ tính nhất quán với implementation Java
       final jsonMessage = {
         "type": "listen",
         "state": "detect",
@@ -244,37 +244,37 @@ class XiaozhiWebSocketManager {
         "source": "text",
       };
 
-      print('$TAG: 发送文本请求: ${jsonEncode(jsonMessage)}');
+      print('$TAG: Gửi yêu cầu văn bản: ${jsonEncode(jsonMessage)}');
       sendMessage(jsonEncode(jsonMessage));
     } catch (e) {
-      print('$TAG: 发送文本请求失败: $e');
+      print('$TAG: Gửi yêu cầu văn bản thất bại: $e');
     }
   }
 
-  /// 处理收到的消息
+  /// Xử lý tin nhắn đã nhận
   void _onMessage(dynamic message) {
     if (message is String) {
-      // 文本消息
+      // Tin nhắn văn bản
       print('$TAG: 收到消息: $message');
       _dispatchEvent(
         XiaozhiEvent(type: XiaozhiEventType.message, data: message),
       );
     } else if (message is List<int>) {
-      // 二进制消息
+      // Tin nhắn nhị phân
       _dispatchEvent(
         XiaozhiEvent(type: XiaozhiEventType.binaryMessage, data: message),
       );
     }
   }
 
-  /// 处理断开连接事件
+  /// Xử lý sự kiện ngắt kết nối
   void _onDisconnected() {
-    print('$TAG: 连接已断开');
+    print('$TAG: Kết nối đã ngắt');
     _dispatchEvent(
       XiaozhiEvent(type: XiaozhiEventType.disconnected, data: null),
     );
 
-    // 尝试自动重连
+    // Thử kết nối lại tự động
     if (!_isReconnecting && _serverUrl != null && _token != null) {
       _isReconnecting = true;
       _reconnectTimer = Timer(
@@ -289,9 +289,9 @@ class XiaozhiWebSocketManager {
     }
   }
 
-  /// 处理错误事件
+  /// Xử lý sự kiện lỗi
   void _onError(error) {
-    print('$TAG: 错误: $error');
+    print('$TAG: Lỗi: $error');
     _dispatchEvent(
       XiaozhiEvent(type: XiaozhiEventType.error, data: error.toString()),
     );
