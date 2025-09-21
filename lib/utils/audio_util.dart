@@ -17,6 +17,7 @@ class AudioUtil {
   static const int SAMPLE_RATE = 16000;
   static const int CHANNELS = 1;
   static const int FRAME_DURATION = 60; // mili giây
+  static const double AMPLIFICATION_FACTOR = 8.0; // Hệ số khuếch đại âm thanh
 
   static final AudioRecorder _audioRecorder = AudioRecorder();
   static ja.AudioPlayer? _player;
@@ -43,6 +44,17 @@ class AudioUtil {
 
   // Instance của FlutterPcmPlayer
   static FlutterPcmPlayer? _pcmPlayer;
+
+  /// Khuếch đại dữ liệu PCM để tăng âm lượng
+  static Int16List _amplifyPcmData(Int16List pcmData, double factor) {
+    return Int16List.fromList(
+      pcmData.map((sample) {
+        int amplified = (sample * factor).round();
+        // Đảm bảo không vượt quá giới hạn Int16 để tránh méo tiếng
+        return amplified.clamp(-32768, 32767);
+      }).toList(),
+    );
+  }
 
   /// Lấy luồng âm thanh
   static Stream<Uint8List> get audioStream => _audioStreamController.stream;
@@ -174,13 +186,16 @@ class AudioUtil {
       // Giải mã dữ liệu Opus
       final Int16List pcmData = _decoder.decode(input: opusData);
 
+      // Khuếch đại dữ liệu PCM để tăng âm lượng
+      final Int16List amplifiedData = _amplifyPcmData(pcmData, AMPLIFICATION_FACTOR);
+
       // Chuẩn bị dữ liệu PCM (theo cách trực tiếp trong ví dụ)
-      final Uint8List pcmBytes = Uint8List(pcmData.length * 2);
+      final Uint8List pcmBytes = Uint8List(amplifiedData.length * 2);
       ByteData bytes = ByteData.view(pcmBytes.buffer);
 
-      // Sử dụng thứ tự byte little-endian
-      for (int i = 0; i < pcmData.length; i++) {
-        bytes.setInt16(i * 2, pcmData[i], Endian.little);
+      // Sử dụng dữ liệu đã được khuếch đại
+      for (int i = 0; i < amplifiedData.length; i++) {
+        bytes.setInt16(i * 2, amplifiedData[i], Endian.little);
       }
 
       // Gửi trực tiếp đến trình phát
