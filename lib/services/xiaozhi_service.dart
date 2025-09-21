@@ -172,8 +172,16 @@ class XiaozhiService {
 
   /// Phân phối sự kiện đến tất cả trình nghe
   void _dispatchEvent(XiaozhiServiceEvent event) {
-    for (var listener in _listeners) {
-      listener(event);
+    // Tạo một bản sao của danh sách listeners để tránh ConcurrentModificationException
+    final listenersCopy = List<XiaozhiServiceListener>.from(_listeners);
+    for (var listener in listenersCopy) {
+      try {
+        listener(event);
+      } catch (e) {
+        print('$TAG: Lỗi khi gọi listener: $e');
+        // Loại bỏ listener bị lỗi để tránh crash
+        _listeners.remove(listener);
+      }
     }
   }
 
@@ -183,6 +191,9 @@ class XiaozhiService {
 
     try {
       print('$TAG: Bắt đầu kết nối máy chủ...');
+      print('$TAG: WebSocket URL: $websocketUrl');
+      print('$TAG: MAC Address: $macAddress');
+      print('$TAG: Token: $token');
 
       // Tạo trình quản lý WebSocket
       _webSocketManager = XiaozhiWebSocketManager(
@@ -194,7 +205,9 @@ class XiaozhiService {
       _webSocketManager!.addListener(_onWebSocketEvent);
 
       // Kết nối WebSocket
+      print('$TAG: Đang kết nối WebSocket...');
       await _webSocketManager!.connect(websocketUrl, token);
+      print('$TAG: WebSocket kết nối thành công');
     } catch (e) {
       print('$TAG: Kết nối thất bại: $e');
       _dispatchEvent(
@@ -554,36 +567,59 @@ class XiaozhiService {
 
   /// Xử lý sự kiện WebSocket
   Future<void> _onWebSocketEvent(XiaozhiEvent event) async {
-    switch (event.type) {
-      case XiaozhiEventType.connected:
-        _isConnected = true;
-        _dispatchEvent(
-          XiaozhiServiceEvent(XiaozhiServiceEventType.connected, null),
-        );
-        break;
+    try {
+      print('$TAG: Nhận sự kiện WebSocket: ${event.type}');
+      switch (event.type) {
+        case XiaozhiEventType.connected:
+          print('$TAG: WebSocket đã kết nối thành công');
+          _isConnected = true;
+          try {
+            _dispatchEvent(
+              XiaozhiServiceEvent(XiaozhiServiceEventType.connected, null),
+            );
+          } catch (e) {
+            print('$TAG: Lỗi khi dispatch connected event: $e');
+          }
+          break;
 
-      case XiaozhiEventType.disconnected:
-        _isConnected = false;
-        _dispatchEvent(
-          XiaozhiServiceEvent(XiaozhiServiceEventType.disconnected, null),
-        );
-        break;
+        case XiaozhiEventType.disconnected:
+          print('$TAG: WebSocket đã ngắt kết nối');
+          _isConnected = false;
+          try {
+            _dispatchEvent(
+              XiaozhiServiceEvent(XiaozhiServiceEventType.disconnected, null),
+            );
+          } catch (e) {
+            print('$TAG: Lỗi khi dispatch disconnected event: $e');
+          }
+          break;
 
-      case XiaozhiEventType.message:
-        await _handleTextMessage(event.data as String);
-        break;
+        case XiaozhiEventType.message:
+          await _handleTextMessage(event.data as String);
+          break;
 
-      case XiaozhiEventType.binaryMessage:
-        // Xử lý dữ liệu âm thanh nhị phân - đơn giản hóa phát trực tiếp
-        final audioData = event.data as List<int>;
-        await AudioUtil.playOpusData(Uint8List.fromList(audioData));
-        break;
+        case XiaozhiEventType.binaryMessage:
+          // Xử lý dữ liệu âm thanh nhị phân - đơn giản hóa phát trực tiếp
+          try {
+            final audioData = event.data as List<int>;
+            await AudioUtil.playOpusData(Uint8List.fromList(audioData));
+          } catch (e) {
+            print('$TAG: Lỗi khi phát dữ liệu âm thanh: $e');
+          }
+          break;
 
-      case XiaozhiEventType.error:
-        _dispatchEvent(
-          XiaozhiServiceEvent(XiaozhiServiceEventType.error, event.data),
-        );
-        break;
+        case XiaozhiEventType.error:
+          try {
+            _dispatchEvent(
+              XiaozhiServiceEvent(XiaozhiServiceEventType.error, event.data),
+            );
+          } catch (e) {
+            print('$TAG: Lỗi khi dispatch error event: $e');
+          }
+          break;
+      }
+    } catch (e) {
+      print('$TAG: Lỗi khi xử lý WebSocket event: $e');
     }
   }
 
@@ -609,7 +645,11 @@ class XiaozhiService {
 
       // Đảm bảo gọi trình nghe tin nhắn trước tiên
       if (_messageListener != null) {
-        _messageListener!(jsonData);
+        try {
+          _messageListener!(jsonData);
+        } catch (e) {
+          print('$TAG: Lỗi khi gọi message listener: $e');
+        }
       }
 
       // Cập nhật ID phiên (máy chủ sẽ cung cấp ID phiên mới trong tin nhắn hello)
@@ -625,17 +665,24 @@ class XiaozhiService {
           if (_isVoiceCallActive && !_hasStartedCall) {
             _hasStartedCall = true;
             // Gửi tin nhắn chế độ nói tự động
-            startSpeaking();
+            try {
+              startSpeaking();
+            } catch (e) {
+              print('$TAG: Lỗi khi bắt đầu nói: $e');
+            }
           }
 
-          // Prepare audio player cho lần play đầu tiên để tránh tiếng lộp bộp
-          await AudioUtil.preparePlayerForFirstPlay();
+          // Audio player initialization handled in initPlayer()
           break;
 
         case 'start':
           // Sau khi nhận phản hồi start, nếu ở chế độ cuộc gọi thoại, bắt đầu ghi âm
           if (_isVoiceCallActive) {
-            _sendListenMessage();
+            try {
+              _sendListenMessage();
+            } catch (e) {
+              print('$TAG: Lỗi khi gửi listen message: $e');
+            }
           }
           break;
 
@@ -646,9 +693,13 @@ class XiaozhiService {
 
           if (state == 'sentence_start' && text.isNotEmpty) {
             print('$TAG: Nhận câu TTS: $text');
-            _dispatchEvent(
-              XiaozhiServiceEvent(XiaozhiServiceEventType.textMessage, text),
-            );
+            try {
+              _dispatchEvent(
+                XiaozhiServiceEvent(XiaozhiServiceEventType.textMessage, text),
+              );
+            } catch (e) {
+              print('$TAG: Lỗi khi dispatch TTS event: $e');
+            }
           }
           break;
 
@@ -658,9 +709,13 @@ class XiaozhiService {
           if (text.isNotEmpty) {
             print('$TAG: Nhận kết quả nhận dạng giọng nói: $text');
             // Phân phối sự kiện tin nhắn người dùng trước
-            _dispatchEvent(
-              XiaozhiServiceEvent(XiaozhiServiceEventType.userMessage, text),
-            );
+            try {
+              _dispatchEvent(
+                XiaozhiServiceEvent(XiaozhiServiceEventType.userMessage, text),
+              );
+            } catch (e) {
+              print('$TAG: Lỗi khi dispatch STT event: $e');
+            }
           }
           break;
 
@@ -669,12 +724,16 @@ class XiaozhiService {
           final String emotion = jsonData['emotion'] ?? '';
           if (emotion.isNotEmpty) {
             print('$TAG: Nhận tin nhắn biểu cảm: $emotion');
-            _dispatchEvent(
-              XiaozhiServiceEvent(
-                XiaozhiServiceEventType.textMessage,
-                'Biểu cảm: $emotion',
-              ),
-            );
+            try {
+              _dispatchEvent(
+                XiaozhiServiceEvent(
+                  XiaozhiServiceEventType.textMessage,
+                  'Biểu cảm: $emotion',
+                ),
+              );
+            } catch (e) {
+              print('$TAG: Lỗi khi dispatch emotion event: $e');
+            }
           }
           break;
 

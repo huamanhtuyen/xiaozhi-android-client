@@ -82,10 +82,17 @@ class DiscoveryScreen extends StatelessWidget {
           Icons.menu_book_outlined,
           const Color(0xFFFF6D00),
           onTap: () {
+            // Sử dụng SnackBarAction để hiển thị thông báo
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Chức năng Trợ lý đọc đang phát triển...'),
                 duration: Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(
+                  bottom: 20,
+                  left: 20,
+                  right: 20
+                ),
               ),
             );
           },
@@ -101,6 +108,12 @@ class DiscoveryScreen extends StatelessWidget {
               const SnackBar(
                 content: Text('Chức năng Công cụ dịch đang phát triển...'),
                 duration: Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(
+                  bottom: 20,
+                  left: 20,
+                  right: 20
+                ),
               ),
             );
           },
@@ -116,6 +129,12 @@ class DiscoveryScreen extends StatelessWidget {
               const SnackBar(
                 content: Text('Chức năng Trợ lý giọng nói đang phát triển...'),
                 duration: Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(
+                  bottom: 20,
+                  left: 20,
+                  right: 20
+                ),
               ),
             );
           },
@@ -133,6 +152,12 @@ class DiscoveryScreen extends StatelessWidget {
                   'Chức năng Phân tích tài liệu đang phát triển...',
                 ),
                 duration: Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(
+                  bottom: 20,
+                  left: 20,
+                  right: 20
+                ),
               ),
             );
           },
@@ -277,6 +302,12 @@ class DiscoveryScreen extends StatelessWidget {
                 SnackBar(
                   content: Text('$title chức năng đang phát triển...'),
                   duration: const Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                  margin: const EdgeInsets.only(
+                    bottom: 20,
+                    left: 20,
+                    right: 20
+                  ),
                 ),
               );
             },

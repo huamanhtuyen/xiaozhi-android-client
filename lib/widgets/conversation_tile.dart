@@ -56,12 +56,15 @@ class ConversationTile extends StatelessWidget {
                           Expanded(
                             child: Row(
                               children: [
-                                Text(
-                                  conversation.title,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.black,
+                                Expanded(
+                                  child: Text(
+                                    conversation.title,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 const SizedBox(width: 6),

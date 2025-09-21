@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:ai_assistant/providers/conversation_provider.dart';
+import 'package:ai_assistant/providers/config_provider.dart';
 import 'package:ai_assistant/models/conversation.dart';
-import 'package:ai_assistant/screens/chat_screen.dart';
 import 'package:ai_assistant/screens/settings_screen.dart';
 import 'package:ai_assistant/screens/conversation_type_screen.dart';
+import 'package:ai_assistant/screens/voice_call_screen.dart';
 import 'package:ai_assistant/widgets/conversation_tile.dart';
 import 'package:ai_assistant/widgets/slidable_delete_tile.dart';
 import 'package:ai_assistant/widgets/discovery_screen.dart';
@@ -21,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   final FocusNode _searchFocusNode = FocusNode();
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   @override
   void dispose() {
@@ -38,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
         SlidableController.instance.closeCurrentTile();
       },
       child: Scaffold(
+        key: _scaffoldMessengerKey,
         extendBody: true,
         extendBodyBehindAppBar: true,
         backgroundColor: const Color(0xFFF8F9FA),
@@ -130,13 +133,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   child: FloatingActionButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ConversationTypeScreen(),
-                        ),
+                    onPressed: () async {
+                      final configProvider = Provider.of<ConfigProvider>(context, listen: false);
+                      final xiaozhiConfigs = configProvider.xiaozhiConfigs;
+
+                      if (xiaozhiConfigs.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Vui lòng thêm cấu hình dịch vụ Xiaozhi trong cài đặt trước')),
+                        );
+                        return;
+                      }
+
+                      final conversationProvider = Provider.of<ConversationProvider>(context, listen: false);
+                      final conversation = await conversationProvider.createConversation(
+                        title: 'Cuộc gọi thoại với ${xiaozhiConfigs.first.name}',
+                        type: ConversationType.xiaozhi,
+                        configId: xiaozhiConfigs.first.id,
                       );
+
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => VoiceCallScreen(
+                              conversation: conversation,
+                              xiaozhiConfig: xiaozhiConfigs.first,
+                            ),
+                          ),
+                        );
+                      }
                     },
                     backgroundColor: Colors.black,
                     child: const Icon(Icons.add, size: 30, color: Colors.white),
@@ -469,11 +494,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Colors.grey.shade400,
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              'Nhấp vào + để tạo cuộc trò chuyện mới',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade500,
+                            Expanded(
+                              child: Text(
+                                'Nhấp vào + để tạo cuộc trò chuyện mới',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -500,15 +529,15 @@ class _HomeScreenState extends State<HomeScreen> {
         ).deleteConversation(conversation.id);
 
         // Hiển thị thông báo hoàn tác
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
+        _scaffoldMessengerKey.currentState?.clearSnackBars();
+        _scaffoldMessengerKey.currentState?.showSnackBar(
           SnackBar(
             content: Text('${conversation.title} đã bị xóa'),
             backgroundColor: Colors.grey.shade800,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
             margin: EdgeInsets.only(
-              bottom: 70 + MediaQuery.of(context).padding.bottom,
+              bottom: 20 + MediaQuery.of(context).padding.bottom,
               left: 20,
               right: 20
             ),
@@ -530,11 +559,19 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
       onTap: () {
-        // Điều hướng trực tiếp đến màn hình trò chuyện
+        // Điều hướng trực tiếp đến màn hình voice call
+        final configProvider = Provider.of<ConfigProvider>(context, listen: false);
+        final xiaozhiConfig = configProvider.xiaozhiConfigs.firstWhere(
+          (config) => config.id == conversation.configId,
+        );
+
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatScreen(conversation: conversation),
+            builder: (context) => VoiceCallScreen(
+              conversation: conversation,
+              xiaozhiConfig: xiaozhiConfig,
+            ),
           ),
         );
       },
@@ -715,13 +752,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           context,
                           listen: false,
                         ).deleteConversation(conversation.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        _scaffoldMessengerKey.currentState?.showSnackBar(
                           SnackBar(
                             content: Text('${conversation.title} đã bị xóa'),
                             backgroundColor: Colors.grey.shade800,
                             behavior: SnackBarBehavior.floating,
                             margin: EdgeInsets.only(
-                              bottom: 70 + MediaQuery.of(context).padding.bottom,
+                              bottom: 20 + MediaQuery.of(context).padding.bottom,
                               left: 20,
                               right: 20
                             ),

@@ -44,6 +44,8 @@ class AudioUtil {
 
   // Instance của FlutterPcmPlayer
   static FlutterPcmPlayer? _pcmPlayer;
+  static bool _isPlayerStopping = false;
+  static bool _isPlayerResetting = false;
 
   /// Khuếch đại dữ liệu PCM để tăng âm lượng
   static Int16List _amplifyPcmData(Int16List pcmData, double factor) {
@@ -149,6 +151,21 @@ class AudioUtil {
       return;
     }
 
+    // Nếu đang trong quá trình dừng hoặc reset, đợi
+    if (_isPlayerStopping || _isPlayerResetting) {
+      print('$TAG: Player đang trong quá trình dừng/reset, đợi...');
+      for (int i = 0; i < 10; i++) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (!_isPlayerStopping && !_isPlayerResetting) break;
+      }
+    }
+
+    // Nếu đã khởi tạo rồi thì không cần khởi tạo lại
+    if (isPlayerReady) {
+      print('$TAG: Trình phát đã được khởi tạo, bỏ qua khởi tạo lại');
+      return;
+    }
+
     // Đảm bảo bất kỳ trình phát cũ nào được giải phóng
     await stopPlaying();
 
@@ -157,14 +174,22 @@ class AudioUtil {
 
       // Tạo instance trình phát mới - hoàn toàn theo cách đơn giản của ví dụ chính thức
       _pcmPlayer = FlutterPcmPlayer();
-      await _pcmPlayer!.initialize();
-      await _pcmPlayer!.play();
+      if (_pcmPlayer != null) {
+        await _pcmPlayer!.initialize();
+        await _pcmPlayer!.play();
 
-      _isPlayerInitialized = true;
-      print('$TAG: Khởi tạo trình phát PCM thành công');
+        _isPlayerInitialized = true;
+        _isPlayerPrepared = true; // Đánh dấu đã prepare
+        print('$TAG: Khởi tạo trình phát PCM thành công');
+      } else {
+        throw Exception('Failed to create FlutterPcmPlayer instance');
+      }
     } catch (e) {
       print('$TAG: Khởi tạo trình phát PCM thất bại: $e');
       _isPlayerInitialized = false;
+      _isPlayerPrepared = false;
+      _pcmPlayer = null;
+      rethrow; // Re-throw để caller có thể xử lý
     }
   }
 
@@ -177,14 +202,21 @@ class AudioUtil {
       return;
     }
 
-    try {
-      // Nếu trình phát chưa được khởi tạo, khởi tạo trước
-      if (!_isPlayerInitialized || _pcmPlayer == null) {
-        await initPlayer();
-      }
+    // Kiểm tra dữ liệu đầu vào
+    if (opusData.isEmpty) {
+      print('$TAG: Dữ liệu Opus rỗng, bỏ qua phát');
+      return;
+    }
 
-      // Giải mã dữ liệu Opus
+    try {
+      // Giải mã dữ liệu Opus trước
       final Int16List pcmData = _decoder.decode(input: opusData);
+
+      // Kiểm tra dữ liệu giải mã
+      if (pcmData.isEmpty) {
+        print('$TAG: Dữ liệu PCM sau khi giải mã rỗng, bỏ qua phát');
+        return;
+      }
 
       // Khuếch đại dữ liệu PCM để tăng âm lượng
       final Int16List amplifiedData = _amplifyPcmData(pcmData, AMPLIFICATION_FACTOR);
@@ -198,59 +230,138 @@ class AudioUtil {
         bytes.setInt16(i * 2, amplifiedData[i], Endian.little);
       }
 
-      // Gửi trực tiếp đến trình phát
-      if (_pcmPlayer != null) {
-        await _pcmPlayer!.feed(pcmBytes);
+      // Kiểm tra và khởi tạo player nếu cần
+      if (!_isPlayerInitialized || _pcmPlayer == null) {
+        print('$TAG: Player chưa sẵn sàng, đang khởi tạo...');
+        try {
+          await initPlayer();
+          // Đợi một chút để player ổn định
+          await Future.delayed(const Duration(milliseconds: 100));
+        } catch (e) {
+          print('$TAG: Khởi tạo player thất bại: $e');
+          return;
+        }
+      }
+
+      // Kiểm tra lại sau khi khởi tạo
+      if (isPlayerReady) {
+        try {
+          // Kiểm tra null một lần nữa trước khi sử dụng
+          final player = _pcmPlayer;
+          if (player != null) {
+            await player!.feed(pcmBytes);
+            print('$TAG: Phát dữ liệu âm thanh thành công (${pcmBytes.length} bytes)');
+          } else {
+            print('$TAG: Player đã null sau khi kiểm tra');
+            return;
+          }
+        } catch (e) {
+          print('$TAG: Feed dữ liệu thất bại: $e');
+
+          // Nếu lỗi feed, thử reset player và feed lại
+          if (e.toString().contains('Failed to feed') ||
+              e.toString().contains('Player is not')) {
+            print('$TAG: Thử reset player và feed lại...');
+
+            // Đánh dấu đang reset để tránh xung đột
+            if (_isPlayerResetting) {
+              print('$TAG: Player đang reset, bỏ qua lần thử này');
+              return;
+            }
+
+            _isPlayerResetting = true;
+            try {
+              await stopPlaying();
+              try {
+                await initPlayer();
+                // Đợi player ổn định lâu hơn
+                await Future.delayed(const Duration(milliseconds: 200));
+
+                if (isPlayerReady) {
+                  try {
+                    final player = _pcmPlayer;
+                    if (player != null) {
+                      await player!.feed(pcmBytes);
+                      print('$TAG: Phát dữ liệu âm thanh thành công sau khi reset');
+                    }
+                  } catch (e2) {
+                    print('$TAG: Phát dữ liệu thất bại sau khi reset: $e2');
+                    // Không throw exception, chỉ log để tránh crash
+                  }
+                }
+              } catch (e2) {
+                print('$TAG: Reset player thất bại: $e2');
+              }
+            } finally {
+              _isPlayerResetting = false;
+            }
+          }
+        }
+      } else {
+        print('$TAG: Trình phát không khả dụng sau khi khởi tạo');
       }
     } catch (e) {
       print('$TAG: Phát thất bại: $e');
-
-      // Đơn giản reset và khởi tạo lại
-      await stopPlaying();
-      await initPlayer();
+      // Không throw exception để tránh crash ứng dụng
     }
   }
 
   /// Dừng phát
   static Future<void> stopPlaying() async {
-    if (_pcmPlayer != null) {
-      try {
-        await _pcmPlayer!.stop();
-        print('$TAG: Trình phát đã dừng');
-      } catch (e) {
-        print('$TAG: Dừng phát thất bại: $e');
-      }
-      _pcmPlayer = null;
-      _isPlayerInitialized = false;
-    }
-  }
-
-  /// Prepare player cho lần play đầu tiên bằng cách init rồi stop để reset trạng thái
-  static Future<void> preparePlayerForFirstPlay() async {
-    if (Platform.isWindows || _isPlayerPrepared) {
+    // Đánh dấu đang dừng để tránh xung đột
+    if (_isPlayerStopping) {
+      print('$TAG: Player đang dừng, bỏ qua lệnh dừng mới');
       return;
     }
 
-    if (_isPlayerInitialized || _pcmPlayer != null) {
-      await stopPlaying();
-    }
+    _isPlayerStopping = true;
 
     try {
-      print('$TAG: Prepare player cho lần play đầu tiên');
-      await initPlayer();
-      await stopPlaying();  // Reset để lần play thực tế init mới, sạch sẽ
-      _isPlayerPrepared = true;
-      print('$TAG: Player đã được prepare (reset) cho lần play đầu tiên');
-    } catch (e) {
-      print('$TAG: Prepare player thất bại: $e');
-      _isPlayerPrepared = false;
+      if (_pcmPlayer != null) {
+        try {
+          // Thử stop player nhiều lần nếu cần
+          for (int i = 0; i < 5; i++) {
+            try {
+              await _pcmPlayer!.stop();
+              print('$TAG: Trình phát đã dừng (lần thử $i)');
+              break;
+            } catch (e) {
+              print('$TAG: Dừng phát thất bại lần $i: $e');
+              if (i < 4) {
+                await Future.delayed(const Duration(milliseconds: 100));
+              }
+            }
+          }
+        } catch (e) {
+          print('$TAG: Dừng phát thất bại: $e');
+        } finally {
+          // Đảm bảo giải phóng player
+          _pcmPlayer = null;
+        }
+      }
+      // Reset tất cả trạng thái player
+      resetPlayerState();
+    } finally {
+      _isPlayerStopping = false;
     }
   }
 
+
   /// Giải phóng tài nguyên
   static Future<void> dispose() async {
-    _isPlayerPrepared = false;  // Reset flag khi dispose
-    _audioStreamController.close();
+    print('$TAG: Bắt đầu giải phóng tài nguyên');
+
+    // Đảm bảo dừng player trước khi dispose
+    await stopPlaying();
+
+    // Reset tất cả trạng thái player
+    resetPlayerState();
+
+    // Đóng stream controller
+    if (!_audioStreamController.isClosed) {
+      _audioStreamController.close();
+    }
+
     print('$TAG: Tài nguyên đã được giải phóng');
   }
 
@@ -390,4 +501,19 @@ class AudioUtil {
 
   /// Kiểm tra xem có đang phát không
   static bool get isPlaying => _isPlaying;
+
+  /// Kiểm tra trạng thái player
+  static bool get isPlayerReady => _isPlayerInitialized && _pcmPlayer != null;
+
+  /// Kiểm tra xem player có đang trong trạng thái bận không
+  static bool get isPlayerBusy => _isPlayerStopping || _isPlayerResetting;
+
+  /// Reset tất cả trạng thái player
+  static void resetPlayerState() {
+    _isPlayerInitialized = false;
+    _isPlayerPrepared = false;
+    _isPlayerStopping = false;
+    _isPlayerResetting = false;
+    _pcmPlayer = null;
+  }
 }

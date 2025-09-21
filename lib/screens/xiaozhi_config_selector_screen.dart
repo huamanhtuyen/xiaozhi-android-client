@@ -4,7 +4,7 @@ import 'package:ai_assistant/providers/config_provider.dart';
 import 'package:ai_assistant/providers/conversation_provider.dart';
 import 'package:ai_assistant/models/conversation.dart';
 import 'package:ai_assistant/models/xiaozhi_config.dart';
-import 'package:ai_assistant/screens/chat_screen.dart';
+import 'package:ai_assistant/screens/voice_call_screen.dart';
 
 class XiaozhiConfigSelectorScreen extends StatelessWidget {
   const XiaozhiConfigSelectorScreen({super.key});
@@ -67,7 +67,10 @@ class XiaozhiConfigSelectorScreen extends StatelessWidget {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => ChatScreen(conversation: conversation),
+          builder: (context) => VoiceCallScreen(
+            conversation: conversation,
+            xiaozhiConfig: config,
+          ),
         ),
       );
     }

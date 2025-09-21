@@ -92,9 +92,11 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
     // 处理服务器发来的消息
     if (message is Map<String, dynamic> && message['type'] == 'hello') {
       print('Nhận tin nhắn hello từ server: $message');
-      setState(() {
-        _serverReady = true;
-      });
+      if (mounted) {
+        setState(() {
+          _serverReady = true;
+        });
+      }
 
       // Sau khi server sẵn sàng, trì hoãn ngắn để tự động bắt đầu ghi âm
       // Điều này đảm bảo ID phiên đã được đặt đúng
@@ -125,18 +127,31 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
   }
 
   void _connectToVoiceService() async {
-    setState(() {
-      _statusText = 'Đang chuẩn bị...';
-    });
+    if (mounted) {
+      setState(() {
+        _statusText = 'Đang chuẩn bị...';
+      });
+    }
 
     try {
-      // Chuyển sang chế độ gọi thoại
-      await _xiaozhiService.switchToVoiceCallMode();
+      print('VoiceCallScreen: Bắt đầu kết nối voice service...');
 
-      setState(() {
-        _statusText = 'Đã kết nối';
-        _isConnected = true;
-      });
+      // Chuyển sang chế độ gọi thoại
+      print('VoiceCallScreen: Chuyển sang chế độ gọi thoại...');
+      await _xiaozhiService.switchToVoiceCallMode();
+      print('VoiceCallScreen: Đã chuyển sang chế độ gọi thoại thành công');
+
+      // Kết nối WebSocket
+      print('VoiceCallScreen: Đang kết nối WebSocket...');
+      await _xiaozhiService.connect();
+      print('VoiceCallScreen: WebSocket kết nối thành công');
+
+      if (mounted) {
+        setState(() {
+          _statusText = 'Đã kết nối';
+          _isConnected = true;
+        });
+      }
 
       // Hiển thị thông báo kết nối thành công
       if (mounted) {
@@ -159,10 +174,12 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
       // Bắt đầu ghi âm trực tiếp
       _startSpeaking();
     } catch (e) {
-      setState(() {
-        _statusText = '准备失败';
-        _isConnected = false;
-      });
+      if (mounted) {
+        setState(() {
+          _statusText = '准备失败';
+          _isConnected = false;
+        });
+      }
       print('准备失败: $e');
 
       if (mounted) {
@@ -177,9 +194,11 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
 
   void _startCallTimer() {
     _callTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _callDuration = Duration(seconds: timer.tick);
-      });
+      if (mounted) {
+        setState(() {
+          _callDuration = Duration(seconds: timer.tick);
+        });
+      }
     });
   }
 
@@ -187,7 +206,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
     _audioVisualizerTimer = Timer.periodic(const Duration(milliseconds: 100), (
       timer,
     ) {
-      if (_isConnected) {
+      if (mounted && _isConnected) {
         setState(() {
           // Simulate audio levels
           for (int i = 0; i < _audioLevels.length - 1; i++) {
@@ -209,9 +228,11 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
   // 开始录音
   void _startSpeaking() {
     if (!_isSpeaking) {
-      setState(() {
-        _isSpeaking = true;
-      });
+      if (mounted) {
+        setState(() {
+          _isSpeaking = true;
+        });
+      }
 
       try {
         // 开始录音并订阅音频流
@@ -244,9 +265,11 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
       } catch (e) {
         print('开始录音失败: $e');
         // 如果失败，恢复状态
-        setState(() {
-          _isSpeaking = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isSpeaking = false;
+          });
+        }
 
         if (mounted) {
           _showCustomSnackbar(
@@ -644,7 +667,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
       backgroundColor: Colors.black87,
       duration: const Duration(seconds: 3),
       margin: EdgeInsets.only(
-        bottom: MediaQuery.of(context).size.height - 120,
+        bottom: MediaQuery.of(context).padding.bottom + 100,
         left: 16,
         right: 16,
       ),

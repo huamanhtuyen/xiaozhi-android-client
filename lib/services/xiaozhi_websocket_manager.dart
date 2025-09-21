@@ -145,12 +145,14 @@ class XiaozhiWebSocketManager {
       );
 
       // Sau khi kết nối thành công, gửi tin nhắn Hello
+      print('$TAG: WebSocket kết nối thành công, gửi sự kiện connected');
       _dispatchEvent(
         XiaozhiEvent(type: XiaozhiEventType.connected, data: null),
       );
 
       // Gửi tin nhắn Hello sau khi gửi thông tin xác thực
       Timer(Duration(milliseconds: 200), () {
+        print('$TAG: Gửi tin nhắn Hello...');
         _sendHelloMessage();
       });
 

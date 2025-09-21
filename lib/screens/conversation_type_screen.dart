@@ -4,8 +4,7 @@ import 'package:ai_assistant/providers/config_provider.dart';
 import 'package:ai_assistant/providers/conversation_provider.dart';
 import 'package:ai_assistant/models/conversation.dart';
 import 'package:ai_assistant/models/xiaozhi_config.dart';
-import 'package:ai_assistant/models/dify_config.dart';
-import 'package:ai_assistant/screens/chat_screen.dart';
+import 'package:ai_assistant/screens/voice_call_screen.dart';
 
 class ConversationTypeScreen extends StatefulWidget {
   const ConversationTypeScreen({super.key});
@@ -15,11 +14,23 @@ class ConversationTypeScreen extends StatefulWidget {
 }
 
 class _ConversationTypeScreenState extends State<ConversationTypeScreen> {
-  ConversationType? _selectedType;
   XiaozhiConfig? _selectedXiaozhiConfig;
-  DifyConfig? _selectedDifyConfig;
   bool _showXiaozhiSelector = false;
-  bool _showDifySelector = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Mặc định hiển thị selector Xiaozhi
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final xiaozhiConfigs = Provider.of<ConfigProvider>(context, listen: false).xiaozhiConfigs;
+      if (xiaozhiConfigs.isNotEmpty) {
+        setState(() {
+          _selectedXiaozhiConfig = xiaozhiConfigs.first;
+          _showXiaozhiSelector = true;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +45,7 @@ class _ConversationTypeScreenState extends State<ConversationTypeScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'Tạo cuộc trò chuyện mới',
+          'Bắt đầu cuộc gọi thoại',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -51,14 +62,10 @@ class _ConversationTypeScreenState extends State<ConversationTypeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildTypeSelectionCard(),
+                    _buildVoiceCallSelectionCard(),
                     if (_showXiaozhiSelector) ...[
                       const SizedBox(height: 16),
                       _buildXiaozhiSelectionCard(),
-                    ],
-                    if (_showDifySelector) ...[
-                      const SizedBox(height: 16),
-                      _buildDifySelectionCard(),
                     ],
                   ],
                 ),
@@ -71,7 +78,7 @@ class _ConversationTypeScreenState extends State<ConversationTypeScreen> {
     );
   }
 
-  Widget _buildTypeSelectionCard() {
+  Widget _buildVoiceCallSelectionCard() {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 20),
@@ -96,12 +103,12 @@ class _ConversationTypeScreenState extends State<ConversationTypeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Chọn loại cuộc trò chuyện',
+                  'Chọn dịch vụ Xiaozhi',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Vui lòng chọn loại cuộc trò chuyện bạn muốn tạo',
+                  'Vui lòng chọn dịch vụ giọng nói Xiaozhi bạn muốn sử dụng',
                   style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
                 ),
               ],
@@ -109,224 +116,121 @@ class _ConversationTypeScreenState extends State<ConversationTypeScreen> {
           ),
           const Divider(height: 1, color: Color(0xFFEEEEEE)),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    final difyConfigs =
-                        Provider.of<ConfigProvider>(
-                          context,
-                          listen: false,
-                        ).difyConfigs;
+          _buildXiaozhiDropdownForVoiceCall(),
+          const SizedBox(height: 16),
+          if (_selectedXiaozhiConfig != null)
+            _buildXiaozhiDetailsPanel(_selectedXiaozhiConfig!),
+        ],
+      ),
+    );
+  }
 
-                    if (difyConfigs.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Vui lòng thêm cấu hình Dify trong cài đặt trước')),
-                      );
-                      return;
-                    }
+  Widget _buildXiaozhiDropdownForVoiceCall() {
+    final xiaozhiConfigs = Provider.of<ConfigProvider>(context).xiaozhiConfigs;
 
-                    setState(() {
-                      _selectedType = ConversationType.dify;
-                      _showXiaozhiSelector = false;
-                      _showDifySelector = true;
-                      // Mặc định chọn cấu hình Dify đầu tiên
-                      _selectedDifyConfig =
-                          difyConfigs.isNotEmpty ? difyConfigs.first : null;
-                    });
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(
-                      left: 20,
-                      right: 10,
-                      bottom: 20,
-                    ),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color:
-                          _selectedType == ConversationType.dify
-                              ? const Color(0xFFF5F5F5)
-                              : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color:
-                            _selectedType == ConversationType.dify
-                                ? Colors.black
-                                : Colors.grey.shade300,
-                        width: _selectedType == ConversationType.dify ? 2 : 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(
-                            _selectedType == ConversationType.dify
-                                ? 0.08
-                                : 0.03,
-                          ),
-                          blurRadius:
-                              _selectedType == ConversationType.dify ? 6 : 3,
-                          spreadRadius: 0,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.blue.withOpacity(0.3),
-                                blurRadius: 10,
-                                spreadRadius: 0,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            radius: 36,
-                            backgroundColor: Colors.blue.shade400,
-                            child: const Icon(
-                              Icons.chat_bubble_outline,
-                              color: Colors.white,
-                              size: 36,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          'Cuộc trò chuyện văn bản Dify',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Cuộc trò chuyện AI dựa trên văn bản',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    final xiaozhiConfigs =
-                        Provider.of<ConfigProvider>(
-                          context,
-                          listen: false,
-                        ).xiaozhiConfigs;
-
-                    if (xiaozhiConfigs.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Vui lòng thêm cấu hình dịch vụ Xiaozhi trong cài đặt trước')),
-                      );
-                      return;
-                    }
-
-                    setState(() {
-                      _selectedType = ConversationType.xiaozhi;
-                      _showXiaozhiSelector = true;
-                      _showDifySelector = false;
-                      // Mặc định chọn cấu hình Xiaozhi đầu tiên
-                      _selectedXiaozhiConfig =
-                          xiaozhiConfigs.isNotEmpty
-                              ? xiaozhiConfigs.first
-                              : null;
-                    });
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(
-                      left: 10,
-                      right: 20,
-                      bottom: 20,
-                    ),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color:
-                          _selectedType == ConversationType.xiaozhi
-                              ? const Color(0xFFF5F5F5)
-                              : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color:
-                            _selectedType == ConversationType.xiaozhi
-                                ? Colors.black
-                                : Colors.grey.shade300,
-                        width:
-                            _selectedType == ConversationType.xiaozhi ? 2 : 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(
-                            _selectedType == ConversationType.xiaozhi
-                                ? 0.08
-                                : 0.03,
-                          ),
-                          blurRadius:
-                              _selectedType == ConversationType.xiaozhi ? 6 : 3,
-                          spreadRadius: 0,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.purple.withOpacity(0.3),
-                                blurRadius: 10,
-                                spreadRadius: 0,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            radius: 36,
-                            backgroundColor: Colors.purple.shade400,
-                            child: const Icon(
-                              Icons.mic,
-                              color: Colors.white,
-                              size: 36,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          'Cuộc trò chuyện giọng nói Xiaozhi',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Hỗ trợ giao tiếp văn bản và giọng nói',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            spreadRadius: 0,
+            offset: const Offset(0, 3),
+          ),
+          BoxShadow(
+            color: Colors.purple.withOpacity(0.04),
+            blurRadius: 12,
+            spreadRadius: -2,
+            offset: const Offset(0, 6),
           ),
         ],
+        border: Border.all(color: Colors.grey.shade200, width: 1.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 8),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<XiaozhiConfig>(
+            value: _selectedXiaozhiConfig,
+            isExpanded: true,
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.purple.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.purple,
+                size: 24,
+              ),
+            ),
+            iconSize: 24,
+            itemHeight: 60,
+            dropdownColor: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
+            items:
+                xiaozhiConfigs.map((XiaozhiConfig config) {
+                  return DropdownMenuItem<XiaozhiConfig>(
+                    value: config,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.purple.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.mic,
+                              color: Colors.purple,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                config.name,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              Text(
+                                config.websocketUrl.split('/').last,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+            onChanged: (XiaozhiConfig? newValue) {
+              setState(() {
+                _selectedXiaozhiConfig = newValue;
+              });
+            },
+          ),
+        ),
       ),
     );
   }
@@ -600,269 +504,6 @@ class _ConversationTypeScreenState extends State<ConversationTypeScreen> {
     );
   }
 
-  Widget _buildDifySelectionCard() {
-    final difyConfigs = Provider.of<ConfigProvider>(context).difyConfigs;
-
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 8,
-            spreadRadius: 0,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Chọn dịch vụ Dify',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Vui lòng chọn dịch vụ Dify API bạn muốn sử dụng',
-                  style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, color: Color(0xFFEEEEEE)),
-          const SizedBox(height: 16),
-          _buildDifyDropdown(difyConfigs),
-          const SizedBox(height: 16),
-          if (_selectedDifyConfig != null)
-            _buildDifyDetailsPanel(_selectedDifyConfig!),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDifyDropdown(List<DifyConfig> configs) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            spreadRadius: 0,
-            offset: const Offset(0, 3),
-          ),
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.04),
-            blurRadius: 12,
-            spreadRadius: -2,
-            offset: const Offset(0, 6),
-          ),
-        ],
-        border: Border.all(color: Colors.grey.shade200, width: 1.5),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 8),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<DifyConfig>(
-            value: _selectedDifyConfig,
-            isExpanded: true,
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.keyboard_arrow_down,
-                color: Colors.blue,
-                size: 24,
-              ),
-            ),
-            iconSize: 24,
-            itemHeight: 60,
-            dropdownColor: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
-            ),
-            items:
-                configs.map((DifyConfig config) {
-                  return DropdownMenuItem<DifyConfig>(
-                    value: config,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(
-                              Icons.chat_bubble_outline,
-                              color: Colors.blue,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                config.name,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Text(
-                                config.apiUrl.split('/').last,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade600,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-            onChanged: (DifyConfig? newValue) {
-              setState(() {
-                _selectedDifyConfig = newValue;
-              });
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDifyDetailsPanel(DifyConfig config) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 8,
-            spreadRadius: 0,
-            offset: const Offset(0, 3),
-          ),
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.04),
-            blurRadius: 12,
-            spreadRadius: -2,
-            offset: const Offset(0, 6),
-          ),
-        ],
-        border: Border.all(color: Colors.grey.shade100),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withOpacity(0.1),
-                      blurRadius: 8,
-                      spreadRadius: 0,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.info_outline,
-                  color: Colors.blue.shade400,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Text(
-                'Chi tiết dịch vụ',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _buildDetailItemDify('API URL', config.apiUrl),
-          const SizedBox(height: 12),
-          _buildDetailItemDify(
-            'Khóa API',
-            '${config.apiKey.substring(0, 5)}...',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailItemDify(String label, String value) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade100),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.blue.shade700,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildBottomButton() {
     return Container(
@@ -885,7 +526,7 @@ class _ConversationTypeScreenState extends State<ConversationTypeScreen> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: _selectedType == null ? null : _createConversation,
+        onPressed: _selectedXiaozhiConfig == null ? null : _createConversation,
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: Colors.black,
@@ -894,14 +535,14 @@ class _ConversationTypeScreenState extends State<ConversationTypeScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          elevation: _selectedType == null ? 0 : 4,
+          elevation: _selectedXiaozhiConfig == null ? 0 : 4,
           shadowColor:
-              _selectedType == null
+              _selectedXiaozhiConfig == null
                   ? Colors.transparent
                   : Colors.black.withOpacity(0.3),
         ),
         child: const Text(
-          'Tạo cuộc trò chuyện',
+          'Bắt đầu cuộc gọi thoại',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
       ),
@@ -909,40 +550,17 @@ class _ConversationTypeScreenState extends State<ConversationTypeScreen> {
   }
 
   void _createConversation() async {
-    if (_selectedType == ConversationType.dify && _selectedDifyConfig != null) {
-      _createDifyConversation(_selectedDifyConfig!);
-    } else if (_selectedType == ConversationType.xiaozhi &&
-        _selectedXiaozhiConfig != null) {
-      _createXiaozhiConversation(_selectedXiaozhiConfig!);
+    if (_selectedXiaozhiConfig != null) {
+      _createVoiceCallConversation(_selectedXiaozhiConfig!);
     }
   }
 
-  void _createDifyConversation(DifyConfig config) async {
+  void _createVoiceCallConversation(XiaozhiConfig config) async {
     final conversation = await Provider.of<ConversationProvider>(
       context,
       listen: false,
     ).createConversation(
-      title: 'Cuộc trò chuyện với ${config.name}',
-      type: ConversationType.dify,
-      configId: config.id,
-    );
-
-    if (context.mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ChatScreen(conversation: conversation),
-        ),
-      );
-    }
-  }
-
-  void _createXiaozhiConversation(XiaozhiConfig config) async {
-    final conversation = await Provider.of<ConversationProvider>(
-      context,
-      listen: false,
-    ).createConversation(
-      title: 'Cuộc trò chuyện với ${config.name}',
+      title: 'Cuộc gọi thoại với ${config.name}',
       type: ConversationType.xiaozhi,
       configId: config.id,
     );
@@ -951,7 +569,10 @@ class _ConversationTypeScreenState extends State<ConversationTypeScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => ChatScreen(conversation: conversation),
+          builder: (context) => VoiceCallScreen(
+            conversation: conversation,
+            xiaozhiConfig: config,
+          ),
         ),
       );
     }
