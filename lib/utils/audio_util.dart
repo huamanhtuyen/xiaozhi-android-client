@@ -17,7 +17,7 @@ class AudioUtil {
   static const int SAMPLE_RATE = 16000;
   static const int CHANNELS = 1;
   static const int FRAME_DURATION = 60; // mili giây
-  static const double AMPLIFICATION_FACTOR = 8.0; // Hệ số khuếch đại âm thanh
+  static const double AMPLIFICATION_FACTOR = 6.0; // Hệ số khuếch đại âm thanh
 
   static final AudioRecorder _audioRecorder = AudioRecorder();
   static ja.AudioPlayer? _player;
@@ -178,9 +178,21 @@ class AudioUtil {
         await _pcmPlayer!.initialize();
         await _pcmPlayer!.play();
 
+        // Reset player sau khi khởi tạo để tránh pop âm thanh
+        print('$TAG: Reset player sau khi khởi tạo để tránh pop âm thanh...');
+        await Future.delayed(const Duration(milliseconds: 50));
+        try {
+          await _pcmPlayer!.stop();
+          print('$TAG: Player đã được reset thành công');
+        } catch (e) {
+          print('$TAG: Không thể stop player trong quá trình reset: $e');
+        }
+        await Future.delayed(const Duration(milliseconds: 50));
+        await _pcmPlayer!.play();
+
         _isPlayerInitialized = true;
         _isPlayerPrepared = true; // Đánh dấu đã prepare
-        print('$TAG: Khởi tạo trình phát PCM thành công');
+        print('$TAG: Khởi tạo trình phát PCM thành công (đã reset để tránh pop)');
       } else {
         throw Exception('Failed to create FlutterPcmPlayer instance');
       }
@@ -319,21 +331,18 @@ class AudioUtil {
     try {
       if (_pcmPlayer != null) {
         try {
-          // Thử stop player nhiều lần nếu cần
-          for (int i = 0; i < 5; i++) {
-            try {
-              await _pcmPlayer!.stop();
-              print('$TAG: Trình phát đã dừng (lần thử $i)');
-              break;
-            } catch (e) {
-              print('$TAG: Dừng phát thất bại lần $i: $e');
-              if (i < 4) {
-                await Future.delayed(const Duration(milliseconds: 100));
-              }
+          // Thử stop player một cách an toàn
+          try {
+            await _pcmPlayer!.stop();
+            print('$TAG: Trình phát đã dừng thành công');
+          } catch (e) {
+            // Bỏ qua lỗi stop nếu player đã dừng
+            if (!e.toString().contains('Player is not')) {
+              print('$TAG: Dừng phát thất bại: $e');
             }
           }
         } catch (e) {
-          print('$TAG: Dừng phát thất bại: $e');
+          print('$TAG: Lỗi khi dừng player: $e');
         } finally {
           // Đảm bảo giải phóng player
           _pcmPlayer = null;
@@ -356,6 +365,9 @@ class AudioUtil {
 
     // Reset tất cả trạng thái player
     resetPlayerState();
+
+    // Reset flag prepare
+    _isPlayerPrepared = false;
 
     // Đóng stream controller
     if (!_audioStreamController.isClosed) {
@@ -515,5 +527,27 @@ class AudioUtil {
     _isPlayerStopping = false;
     _isPlayerResetting = false;
     _pcmPlayer = null;
+  }
+
+  /// Prepare player cho lần play đầu tiên bằng cách init rồi stop để reset trạng thái
+  static Future<void> preparePlayerForFirstPlay() async {
+    if (Platform.isWindows || _isPlayerPrepared) {
+      return;
+    }
+
+    if (_isPlayerInitialized || _pcmPlayer != null) {
+      await stopPlaying();
+    }
+
+    try {
+      print('$TAG: Prepare player cho lần play đầu tiên');
+      await initPlayer();
+      // Player đã được reset trong initPlayer(), không cần stop lại
+      _isPlayerPrepared = true;
+      print('$TAG: Player đã được prepare (reset) cho lần play đầu tiên');
+    } catch (e) {
+      print('$TAG: Prepare player thất bại: $e');
+      _isPlayerPrepared = false;
+    }
   }
 }

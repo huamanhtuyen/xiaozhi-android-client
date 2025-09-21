@@ -102,6 +102,11 @@ class XiaozhiService {
       await AudioUtil.initRecorder();
       await AudioUtil.initPlayer();
 
+      // Prepare player để tránh pop âm thanh khi phát lần đầu
+      print('$TAG: Chuẩn bị player để tránh pop âm thanh...');
+      await AudioUtil.preparePlayerForFirstPlay();
+      print('$TAG: Player đã được chuẩn bị xong');
+
       _isVoiceCallActive = true;
       print('$TAG: Đã chuyển sang chế độ cuộc gọi thoại');
     } catch (e) {
@@ -151,6 +156,11 @@ class XiaozhiService {
     // Khởi tạo công cụ âm thanh
     await AudioUtil.initRecorder();
     await AudioUtil.initPlayer();
+
+    // Prepare player để tránh pop âm thanh khi phát lần đầu
+    print('$TAG: Chuẩn bị player để tránh pop âm thanh...');
+    await AudioUtil.preparePlayerForFirstPlay();
+    print('$TAG: Player đã được chuẩn bị xong');
   }
 
   /// Thiết lập trình nghe tin nhắn
@@ -335,6 +345,11 @@ class XiaozhiService {
       await AudioUtil.stopPlaying();
       await AudioUtil.initRecorder();
       await AudioUtil.initPlayer();
+
+      // Prepare player để tránh pop âm thanh khi phát lần đầu
+      print('$TAG: Chuẩn bị player để tránh pop âm thanh...');
+      await AudioUtil.preparePlayerForFirstPlay();
+      print('$TAG: Player đã được chuẩn bị xong');
 
       print('$TAG: Đang kết nối $websocketUrl');
       print('$TAG: ID thiết bị: $macAddress');
