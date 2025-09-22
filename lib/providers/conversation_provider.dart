@@ -88,7 +88,8 @@ class ConversationProvider extends ChangeNotifier {
     await prefs.setStringList('conversations', conversationsJson);
 
     // Save messages for each conversation
-    for (final entry in _messages.entries) {
+    final entriesCopy = _messages.entries.toList();
+    for (final entry in entriesCopy) {
       final messagesJson =
           entry.value.map((message) => jsonEncode(message.toJson())).toList();
       await prefs.setStringList('messages_${entry.key}', messagesJson);
@@ -360,7 +361,8 @@ class ConversationProvider extends ChangeNotifier {
     String? targetConversationId;
     int messageIndex = -1;
 
-    for (final entry in _messages.entries) {
+    final entriesCopy = _messages.entries.toList();
+    for (final entry in entriesCopy) {
       final index = entry.value.indexWhere(
         (message) => message.id == messageId,
       );

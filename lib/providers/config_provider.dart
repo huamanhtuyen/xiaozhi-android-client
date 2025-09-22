@@ -76,6 +76,11 @@ class ConfigProvider extends ChangeNotifier {
     await prefs.setStringList('difyConfigs', difyConfigsJson);
   }
 
+  // Public method để lưu cấu hình (cho trường hợp đặc biệt)
+  Future<void> saveConfigs() async {
+    await _saveConfigs();
+  }
+
   Future<void> addXiaozhiConfig(
     String name,
     String websocketUrl, {

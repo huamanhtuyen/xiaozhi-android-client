@@ -611,10 +611,8 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
   Widget _buildEndCallButton() {
     return GestureDetector(
       onTap: () async {
-        // Trước tiên gửi tin nhắn ngắt
-        await _xiaozhiService.sendAbortMessage();
-        // Sau đó quay về trang trước
-        Navigator.pop(context);
+        // Kết thúc cuộc gọi và thoát ứng dụng
+        await _endCallAndExit();
       },
       child: Container(
         width: 64,
@@ -637,6 +635,50 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
         ),
       ),
     );
+  }
+
+  Future<void> _endCallAndExit() async {
+    try {
+      // Hiển thị thông báo đang kết thúc
+      if (mounted) {
+        _showCustomSnackbar(
+          message: 'Đang kết thúc cuộc gọi...',
+          icon: Icons.call_end,
+          iconColor: Colors.redAccent,
+        );
+      }
+
+      // Dừng tất cả hoạt động âm thanh
+      _xiaozhiService.stopPlayback();
+
+      // Ngắt kết nối WebSocket
+      await _xiaozhiService.disconnect();
+
+      // Hủy tất cả timer
+      _callTimer?.cancel();
+      _audioVisualizerTimer?.cancel();
+
+      // Chờ một chút để đảm bảo ngắt kết nối hoàn tất
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Thoát ứng dụng hoàn toàn
+      if (mounted) {
+        Navigator.of(context).pop(); // Quay về trang trước
+      }
+
+      // Thoát ứng dụng
+      await Future.delayed(const Duration(milliseconds: 100));
+      SystemNavigator.pop();
+
+    } catch (e) {
+      print('Lỗi khi kết thúc cuộc gọi: $e');
+
+      // Ngay cả khi có lỗi, vẫn cố gắng thoát ứng dụng
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+      SystemNavigator.pop();
+    }
   }
 
   // Hiển thị Snackbar tùy chỉnh

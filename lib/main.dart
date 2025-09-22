@@ -6,6 +6,7 @@ import 'package:ai_assistant/providers/theme_provider.dart';
 import 'package:ai_assistant/providers/config_provider.dart';
 import 'package:ai_assistant/providers/conversation_provider.dart';
 import 'package:ai_assistant/screens/home_screen.dart';
+import 'package:ai_assistant/screens/voice_call_wrapper_screen.dart';
 import 'package:ai_assistant/screens/settings_screen.dart';
 import 'package:ai_assistant/screens/test_screen.dart';
 import 'package:ai_assistant/utils/app_theme.dart';
@@ -151,7 +152,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
-      home: const HomeScreen(),
+      home: const VoiceCallWrapperScreen(),
       routes: {
         // Thêm route cho màn hình test
         '/test': (context) => const TestScreen(),
