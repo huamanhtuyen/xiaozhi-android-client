@@ -127,18 +127,6 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
               _currentEmotion = emotion;
             }
           });
-
-
-          // Tự động xóa emotion sau 3 giây
-          if (emotion != null) {
-            Future.delayed(const Duration(seconds: 3), () {
-              if (mounted) {
-                setState(() {
-                  _currentEmotion = '';
-                });
-              }
-            });
-          }
         }
       } else if (message['type'] == 'tts' && message['text'] != null) {
         // Xử lý tin nhắn TTS với các state khác nhau
@@ -162,15 +150,6 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
         if (mounted) {
           setState(() {
             _currentEmotion = emotion;
-          });
-
-          // Tự động xóa emotion sau 3 giây
-          Future.delayed(const Duration(seconds: 3), () {
-            if (mounted) {
-              setState(() {
-                _currentEmotion = '';
-              });
-            }
           });
         }
       } else if (message['type'] == 'stt' && message['text'] != null) {
