@@ -1,0 +1,7 @@
+{
+    "workbench.colorCustomizations": {
+  "list.warningForeground": "#40C4FF", 
+  "problemsWarningIcon.foreground": "#40C4FF",
+  "editorWarning.foreground": "#40C4FF"
+}
+}

@@ -7,7 +7,6 @@ import 'package:ai_assistant/models/xiaozhi_config.dart';
 import 'package:ai_assistant/providers/conversation_provider.dart';
 import 'package:ai_assistant/services/xiaozhi_service.dart';
 import 'dart:async';
-import 'dart:io';
 
 class VoiceCallScreen extends StatefulWidget {
   final Conversation conversation;
@@ -32,6 +31,8 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
   Timer? _callTimer;
   Duration _callDuration = Duration.zero;
   bool _serverReady = false;
+  String _currentText = ''; // Text từ server (TTS, conversation text, etc.)
+  String _currentEmotion = ''; // Emotion từ server
 
   late AnimationController _animationController;
   final List<double> _audioLevels = List.filled(30, 0.05);
@@ -92,26 +93,122 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
 
   void _handleServerMessage(dynamic message) {
     // Xử lý tin nhắn từ server
-    if (message is Map<String, dynamic> && message['type'] == 'hello') {
-      print('Nhận tin nhắn hello từ server: $message');
-      if (mounted) {
-        setState(() {
-          _serverReady = true;
-        });
-      }
+    if (message is Map<String, dynamic>) {
+      print('Nhận tin nhắn từ server: $message');
 
-      // Sau khi server sẵn sàng, trì hoãn ngắn để tự động bắt đầu ghi âm
-      // Điều này đảm bảo ID phiên đã được đặt đúng
-      if (_isConnected && !_isSpeaking) {
-        // Trì hoãn 1 giây, đảm bảo server và client đã sẵn sàng
-        Future.delayed(const Duration(milliseconds: 1000), () {
-          if (mounted && _isConnected && !_isSpeaking) {
-            print('Chuẩn bị bắt đầu ghi âm...');
-            _startSpeaking();
+      if (message['type'] == 'hello') {
+        print('Nhận tin nhắn hello từ server: $message');
+        if (mounted) {
+          setState(() {
+            _serverReady = true;
+          });
+        }
+
+        // Sau khi server sẵn sàng, trì hoãn ngắn để tự động bắt đầu ghi âm
+        // Điều này đảm bảo ID phiên đã được đặt đúng
+        if (_isConnected && !_isSpeaking) {
+          // Trì hoãn 1 giây, đảm bảo server và client đã sẵn sàng
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            if (mounted && _isConnected && !_isSpeaking) {
+              print('Chuẩn bị bắt đầu ghi âm...');
+              _startSpeaking();
+            }
+          });
+        }
+      } else if (message['type'] == 'llm' && message['text'] != null) {
+        // Xử lý tin nhắn llm có cả text và emotion
+        final String text = message['text'];
+        final String? emotion = message['emotion'];
+        print('Nhận tin nhắn llm - Text: $text, Emotion: $emotion');
+        if (mounted) {
+          setState(() {
+            _currentText = text;
+            if (emotion != null) {
+              _currentEmotion = emotion;
+            }
+          });
+
+          // Tự động xóa text sau 5 giây
+          Future.delayed(const Duration(seconds: 5), () {
+            if (mounted) {
+              setState(() {
+                _currentText = '';
+              });
+            }
+          });
+
+          // Tự động xóa emotion sau 3 giây
+          if (emotion != null) {
+            Future.delayed(const Duration(seconds: 3), () {
+              if (mounted) {
+                setState(() {
+                  _currentEmotion = '';
+                });
+              }
+            });
           }
-        });
+        }
+      } else if (message['type'] == 'tts' && message['text'] != null) {
+        // Xử lý tin nhắn TTS với các state khác nhau
+        final String state = message['state'] ?? '';
+        final String text = message['text'];
+        print('Nhận tin nhắn TTS ($state): $text');
+
+        // Chỉ hiển thị text khi state là sentence_start
+        if (state == 'sentence_start') {
+          if (mounted) {
+            setState(() {
+              _currentText = text;
+            });
+
+            // Tự động xóa text sau 5 giây
+            Future.delayed(const Duration(seconds: 5), () {
+              if (mounted) {
+                setState(() {
+                  _currentText = '';
+                });
+              }
+            });
+          }
+        }
+      } else if (message['type'] == 'emotion' && message['emotion'] != null) {
+        // Xử lý tin nhắn emotion riêng lẻ
+        final String emotion = message['emotion'];
+        print('Nhận tin nhắn emotion: $emotion');
+        if (mounted) {
+          setState(() {
+            _currentEmotion = emotion;
+          });
+
+          // Tự động xóa emotion sau 3 giây
+          Future.delayed(const Duration(seconds: 3), () {
+            if (mounted) {
+              setState(() {
+                _currentEmotion = '';
+              });
+            }
+          });
+        }
+      } else if (message['type'] == 'stt' && message['text'] != null) {
+        // Xử lý tin nhắn STT (speech-to-text)
+        final String text = message['text'];
+        print('Nhận tin nhắn STT: $text');
+        if (mounted) {
+          setState(() {
+            _currentText = text;
+          });
+
+          // Tự động xóa text sau 5 giây
+          Future.delayed(const Duration(seconds: 5), () {
+            if (mounted) {
+              setState(() {
+                _currentText = '';
+              });
+            }
+          });
+        }
       }
-    }
+  }
   }
 
   @override
@@ -484,6 +581,16 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
                 ),
                 const SizedBox(height: 40),
 
+                // Hiển thị text từ server
+                if (_currentText.isNotEmpty)
+                  _buildServerTextDisplay(),
+
+                // Hiển thị emotion từ server
+                if (_currentEmotion.isNotEmpty)
+                  _buildEmotionDisplay(),
+
+                const SizedBox(height: 20),
+
                 // Trực quan hóa âm thanh
                 _buildAudioVisualizer(),
                 const SizedBox(height: 60),
@@ -680,6 +787,92 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
       SystemNavigator.pop();
     }
   }
+
+  // Widget hiển thị text từ server
+  Widget _buildServerTextDisplay() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.smart_toy,
+                color: Colors.blue.shade200,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'AI đang nói:',
+                style: TextStyle(
+                  color: Colors.blue.shade200,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _currentText,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget hiển thị emotion từ server
+  Widget _buildEmotionDisplay() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.purple.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.purple.withOpacity(0.4), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.mood,
+            color: Colors.purple.shade200,
+            size: 16,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            _currentEmotion,
+            style: TextStyle(
+              color: Colors.purple.shade200,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   // Hiển thị Snackbar tùy chỉnh
   void _showCustomSnackbar({
