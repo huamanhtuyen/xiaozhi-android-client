@@ -17,7 +17,7 @@ class AudioUtil {
   static const int SAMPLE_RATE = 16000;
   static const int CHANNELS = 1;
   static const int FRAME_DURATION = 60; // mili giây
-  static const double AMPLIFICATION_FACTOR = 6.0; // Hệ số khuếch đại âm thanh
+  static const double AMPLIFICATION_FACTOR = 1.0; // Hệ số khuếch đại âm thanh
 
   static final AudioRecorder _audioRecorder = AudioRecorder();
   static ja.AudioPlayer? _player;

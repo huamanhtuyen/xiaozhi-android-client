@@ -72,7 +72,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
       duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
 
-    // 获取XiaozhiService实例
+    // Lấy instance XiaozhiService
     _xiaozhiService = XiaozhiService(
       websocketUrl: widget.xiaozhiConfig.websocketUrl,
       macAddress: widget.xiaozhiConfig.macAddress,
@@ -80,16 +80,18 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
       sessionId: widget.conversation.id,
     );
 
-    // 设置消息监听器
+    // Thiết lập trình nghe tin nhắn
     _xiaozhiService.setMessageListener(_handleServerMessage);
 
-    // 连接并切换到语音通话模式
-    _connectToVoiceService();
+    // Khởi tạo audio visualizer trước
     _startAudioVisualizer();
+
+    // Kết nối và chuyển sang chế độ gọi thoại
+    _connectToVoiceService();
   }
 
   void _handleServerMessage(dynamic message) {
-    // 处理服务器发来的消息
+    // Xử lý tin nhắn từ server
     if (message is Map<String, dynamic> && message['type'] == 'hello') {
       print('Nhận tin nhắn hello từ server: $message');
       if (mounted) {
@@ -136,15 +138,15 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
     try {
       print('VoiceCallScreen: Bắt đầu kết nối voice service...');
 
-      // Chuyển sang chế độ gọi thoại
-      print('VoiceCallScreen: Chuyển sang chế độ gọi thoại...');
-      await _xiaozhiService.switchToVoiceCallMode();
-      print('VoiceCallScreen: Đã chuyển sang chế độ gọi thoại thành công');
-
-      // Kết nối WebSocket
+      // Kết nối WebSocket trước
       print('VoiceCallScreen: Đang kết nối WebSocket...');
       await _xiaozhiService.connect();
       print('VoiceCallScreen: WebSocket kết nối thành công');
+
+      // Sau đó chuyển sang chế độ gọi thoại
+      print('VoiceCallScreen: Chuyển sang chế độ gọi thoại...');
+      await _xiaozhiService.switchToVoiceCallMode();
+      print('VoiceCallScreen: Đã chuyển sang chế độ gọi thoại thành công');
 
       if (mounted) {
         setState(() {
@@ -176,11 +178,11 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
     } catch (e) {
       if (mounted) {
         setState(() {
-          _statusText = '准备失败';
+          _statusText = 'Chuẩn bị thất bại';
           _isConnected = false;
         });
       }
-      print('准备失败: $e');
+      print('Chuẩn bị thất bại: $e');
 
       if (mounted) {
         _showCustomSnackbar(
@@ -225,7 +227,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
     });
   }
 
-  // 开始录音
+  // Bắt đầu ghi âm
   void _startSpeaking() {
     if (!_isSpeaking) {
       if (mounted) {
@@ -235,7 +237,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
       }
 
       try {
-        // 开始录音并订阅音频流
+        // Bắt đầu ghi âm và đăng ký luồng âm thanh
         _xiaozhiService
             .startListeningCall()
             .then((_) {
@@ -263,8 +265,8 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
               }
             });
       } catch (e) {
-        print('开始录音失败: $e');
-        // 如果失败，恢复状态
+        print('Bắt đầu ghi âm thất bại: $e');
+        // Nếu thất bại, khôi phục trạng thái
         if (mounted) {
           setState(() {
             _isSpeaking = false;
@@ -282,14 +284,14 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
     }
   }
 
-  // 发送打断消息
+  // Gửi tin nhắn ngắt
   void _sendAbortMessage() {
-    // 发送打断消息
+    // Gửi tin nhắn ngắt
     _xiaozhiService.sendAbortMessage();
 
     if (mounted) {
       _showCustomSnackbar(
-        message: '已发送打断信号',
+        message: 'Đã gửi tín hiệu ngắt',
         icon: Icons.pan_tool,
         iconColor: Colors.orangeAccent,
       );
@@ -305,7 +307,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
 
   @override
   Widget build(BuildContext context) {
-    // 确保状态栏设置正确
+    // Đảm bảo cài đặt thanh trạng thái đúng
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -338,7 +340,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
           child: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
             onPressed: () {
-              // 返回前停止播放
+              // Dừng phát trước khi quay về
               _xiaozhiService.stopPlayback();
               Navigator.pop(context);
             },
@@ -348,7 +350,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // 渐变背景
+          // Nền gradient
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -363,7 +365,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
             ),
           ),
 
-          // 水波纹背景
+          // Nền hình sóng
           Positioned.fill(
             child: Opacity(
               opacity: 0.1,
@@ -374,12 +376,12 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
             ),
           ),
 
-          // 主要内容
+          // Nội dung chính
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 圆形头像
+                // Avatar hình tròn
                 Hero(
                   tag: 'avatar_${widget.conversation.id}',
                   child: Container(
@@ -420,7 +422,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
                 ),
                 const SizedBox(height: 8),
 
-                // 状态显示 - 使用拟物化样式
+                // Hiển thị trạng thái - sử dụng kiểu skeuomorphic
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -460,7 +462,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        _isSpeaking ? '$_statusText (正在录音)' : _statusText,
+                        _isSpeaking ? '$_statusText (Đang ghi âm)' : _statusText,
                         style: TextStyle(
                           color: _isConnected ? Colors.green : Colors.red,
                           fontSize: 16,
@@ -482,11 +484,11 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
                 ),
                 const SizedBox(height: 40),
 
-                // 音频可视化
+                // Trực quan hóa âm thanh
                 _buildAudioVisualizer(),
                 const SizedBox(height: 60),
 
-                // 通话控制按钮
+                // Nút điều khiển cuộc gọi
                 Padding(
                   padding: EdgeInsets.only(
                     bottom: MediaQuery.of(context).padding.bottom + 20,
@@ -554,7 +556,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
 
   Color _getBarColor(int index, double level) {
     if (_isSpeaking) {
-      // 渐变从蓝色到绿色
+      // Gradient từ xanh dương sang xanh lá
       double position = index / _audioLevels.length;
       return Color.lerp(
         Colors.blue.shade400,
@@ -562,7 +564,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
         position,
       )!.withOpacity(0.7 + 0.3 * level);
     } else {
-      // 非说话状态时使用柔和的蓝色
+      // Sử dụng màu xanh dương nhạt khi không nói
       return Colors.blue.shade200.withOpacity(0.3 + 0.4 * level);
     }
   }

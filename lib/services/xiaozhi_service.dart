@@ -41,8 +41,7 @@ class XiaozhiService {
   static const String TAG = "XiaozhiService";
   static const String DEFAULT_SERVER = "wss://ws.xiaozhi.ai";
 
-  // Thực thể singleton
-  static XiaozhiService? _instance;
+  // Loại bỏ singleton pattern để tránh xung đột giữa các cuộc hội thoại
 
   final String websocketUrl;
   final String macAddress;
@@ -59,24 +58,9 @@ class XiaozhiService {
   bool _hasStartedCall = false;
   MessageListener? _messageListener;
 
-  /// Hàm tạo nhà máy, thực hiện mẫu singleton
-  factory XiaozhiService({
-    required String websocketUrl,
-    required String macAddress,
-    required String token,
-    String? sessionId,
-  }) {
-    _instance ??= XiaozhiService._internal(
-      websocketUrl: websocketUrl,
-      macAddress: macAddress,
-      token: token,
-      sessionId: sessionId,
-    );
-    return _instance!;
-  }
 
-  /// Hàm tạo nội bộ
-  XiaozhiService._internal({
+  /// Hàm tạo
+  XiaozhiService({
     required this.websocketUrl,
     required this.macAddress,
     required this.token,
@@ -86,8 +70,6 @@ class XiaozhiService {
     _init();
   }
 
-  /// Lấy thực thể
-  static XiaozhiService? get instance => _instance;
 
   /// Chuyển sang chế độ cuộc gọi thoại
   Future<void> switchToVoiceCallMode() async {
@@ -103,8 +85,13 @@ class XiaozhiService {
       await AudioUtil.initPlayer();
 
       // Prepare player để tránh pop âm thanh khi phát lần đầu
+      // Thêm delay để đảm bảo player đã sẵn sàng hoàn toàn
       print('$TAG: Chuẩn bị player để tránh pop âm thanh...');
       await AudioUtil.preparePlayerForFirstPlay();
+
+      // Thêm delay ngắn để đảm bảo player đã ổn định
+      await Future.delayed(const Duration(milliseconds: 200));
+
       print('$TAG: Player đã được chuẩn bị xong');
 
       _isVoiceCallActive = true;
@@ -158,9 +145,16 @@ class XiaozhiService {
     await AudioUtil.initPlayer();
 
     // Prepare player để tránh pop âm thanh khi phát lần đầu
-    print('$TAG: Chuẩn bị player để tránh pop âm thanh...');
-    await AudioUtil.preparePlayerForFirstPlay();
-    print('$TAG: Player đã được chuẩn bị xong');
+    // Chỉ prepare khi chưa có cuộc gọi thoại nào đang hoạt động
+    if (!_isVoiceCallActive) {
+      print('$TAG: Chuẩn bị player để tránh pop âm thanh...');
+      await AudioUtil.preparePlayerForFirstPlay();
+
+      // Thêm delay ngắn để đảm bảo player đã ổn định
+      await Future.delayed(const Duration(milliseconds: 200));
+
+      print('$TAG: Player đã được chuẩn bị xong');
+    }
   }
 
   /// Thiết lập trình nghe tin nhắn
@@ -347,9 +341,16 @@ class XiaozhiService {
       await AudioUtil.initPlayer();
 
       // Prepare player để tránh pop âm thanh khi phát lần đầu
-      print('$TAG: Chuẩn bị player để tránh pop âm thanh...');
-      await AudioUtil.preparePlayerForFirstPlay();
-      print('$TAG: Player đã được chuẩn bị xong');
+      // Chỉ prepare khi chưa có cuộc gọi thoại nào đang hoạt động
+      if (!_isVoiceCallActive) {
+        print('$TAG: Chuẩn bị player để tránh pop âm thanh...');
+        await AudioUtil.preparePlayerForFirstPlay();
+
+        // Thêm delay ngắn để đảm bảo player đã ổn định
+        await Future.delayed(const Duration(milliseconds: 200));
+
+        print('$TAG: Player đã được chuẩn bị xong');
+      }
 
       print('$TAG: Đang kết nối $websocketUrl');
       print('$TAG: ID thiết bị: $macAddress');
