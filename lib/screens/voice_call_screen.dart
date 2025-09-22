@@ -128,14 +128,6 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
             }
           });
 
-          // Tự động xóa text sau 5 giây
-          Future.delayed(const Duration(seconds: 5), () {
-            if (mounted) {
-              setState(() {
-                _currentText = '';
-              });
-            }
-          });
 
           // Tự động xóa emotion sau 3 giây
           if (emotion != null) {
@@ -161,14 +153,6 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
               _currentText = text;
             });
 
-            // Tự động xóa text sau 5 giây
-            Future.delayed(const Duration(seconds: 5), () {
-              if (mounted) {
-                setState(() {
-                  _currentText = '';
-                });
-              }
-            });
           }
         }
       } else if (message['type'] == 'emotion' && message['emotion'] != null) {
@@ -198,14 +182,6 @@ class _VoiceCallScreenState extends State<VoiceCallScreen>
             _currentText = text;
           });
 
-          // Tự động xóa text sau 5 giây
-          Future.delayed(const Duration(seconds: 5), () {
-            if (mounted) {
-              setState(() {
-                _currentText = '';
-              });
-            }
-          });
         }
       }
   }
